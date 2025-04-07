@@ -1,10 +1,12 @@
-import      { addStaticFolder, handleRoute, sanitizeString } from "ls4bun";
-import type { BunRequest }                                   from "bun";
-import type { WorkRequest }                                  from "ls4bun";
-import      { getComponent }                                 from "@core/components/component";
-import      { getFileTree }                                  from "@core/siteTree";
-import      { renderPage }                                   from "@core/page";
+import { addStaticFolder, handleRoute, sanitizeString } from "ls4bun";
+
+import type { BunRequest }  from "bun";
+import type { WorkRequest } from "ls4bun";
+
+import { getComponent }     from "@core/components/component";
 import { getComponentData } from "@core/data/data";
+import { getFileTree }      from "@core/siteTree";
+import { renderPage }       from "@core/page";
 
 const base = "/api/v1";
 
@@ -32,25 +34,25 @@ export const localRoutes = {
     }
   }),
 
-  // [base+"/loadComponent/:component/:id"]: (req:BunRequest) => handleRoute(req,{
-  //   handler: async (request: WorkRequest) => {
+  [base+"/loadComponent/:component/:id"]: (req:BunRequest) => handleRoute(req,{
+    handler: async (request: WorkRequest) => {
 
-  //     //TODO déplacer dans un controller
+      //TODO déplacer dans un controller
 
-  //     const { component, id } = request.params as { component: string, id: string };
-  //     if (!component || !id) throw new Error("400|component not found");
+      const { component, id } = request.params as { component: string, id: string };
+      if (!component || !id) throw new Error("400|component not found");
 
-  //     const { description, wrapperEditor, schema } = getComponent(component);
-  //     const data = getComponentData(component, id, schema);
+      const { description, wrapperEditor, schema } = getComponent(component);
+      const data = getComponentData(component, id, schema);
 
-  //     return {
-  //       data,
-  //       description,
-  //       wrapperEditor,
-  //       status: 200
-  //     }
-  //   }
-  // }),
+      return {
+        data,
+        description,
+        wrapperEditor,
+        status: 200
+      }
+    }
+  }),
 
   /*
   example how to use validator for input (available also for output)

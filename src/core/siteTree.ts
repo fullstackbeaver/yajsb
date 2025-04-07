@@ -3,12 +3,30 @@ import type { TemplateFolder} from "@adapters/files/files";
 import { basePage, index }           from "./constants";
 import { getFolderContentRecursive } from "@adapters/files/files";
 
-export async function getFileTree() {
-  return getGeneratedPaths(await getFolderContentRecursive(basePage))
+/**
+ * Gets the site tree (all existing page locations) from the filesystem.
+ *
+ * @param {boolean} [withAddLocation] If true, will add a location path with a '+' at the end,
+ *                                    indicating that user can create a page here.
+ *
+ * @returns An array of paths that are existing page locations.
+ */
+export async function getFileTree(withAddLocation = false): Promise<string[]> {
+  return getGeneratedPaths(await getFolderContentRecursive(basePage), withAddLocation)
     .map(path => path.slice("/pages".length));
 }
 
-function getGeneratedPaths( folders: { [key: string]: TemplateFolder }, currentPath = '' ): string[] {
+/**
+ * Takes a nested object of folders and generates an array of paths.
+ *
+ * @param {string[]} folders       The object of folders to generate paths from.
+ * @param {boolean}  [addLocation] If true, will add a location path with a '+' at the end,
+ *                                 indicating that user can create a page here.
+ * @param {string}   [currentPath] The current path to start generating paths from.
+ *
+ * @returns An array of generated paths.
+ */
+function getGeneratedPaths( folders: { [key: string]: TemplateFolder }, addLocation=false, currentPath = '' ): string[] {
   const paths: string[] = [];
 
   for (const folderName in folders) {
@@ -22,16 +40,14 @@ function getGeneratedPaths( folders: { [key: string]: TemplateFolder }, currentP
     if (hasIndexData && hasIndexTemplate) paths.push(newPath);
 
     if (hasChildsTemplate) {
-      paths.push(`${newPath}/+`);
+      addLocation &&paths.push(`${newPath}/+`);
       for (const dataItem of folder.data) {
-        if (dataItem !== index) {
-          paths.push(`${newPath}/${dataItem}`);
-        }
+        dataItem !== index && paths.push(`${newPath}/${dataItem}`);
       }
     }
 
     if (folder.folders) {
-      const subPaths = getGeneratedPaths(folder.folders, newPath);
+      const subPaths = getGeneratedPaths(folder.folders, addLocation, newPath);
       paths.push(...subPaths);
     }
   }

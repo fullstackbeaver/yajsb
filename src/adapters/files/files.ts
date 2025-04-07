@@ -1,7 +1,8 @@
-/* file handler specifi for bun */
+/* file handler specific for bun */
 
 import { join }    from 'path';
 import { readdir } from "node:fs/promises";
+
 import { dataExtension, templateExtension } from '@core/constants';
 
 export type TemplateFolder = {
@@ -35,14 +36,21 @@ export async function getFolderContentRecursive( path: string | string[], folder
   };
 
   for (const file of files) {
+    const fileName = file.name;
+
     if (file.isDirectory()) {
-      const subfolder = await getFolderContentRecursive(join(path, file.name), file.name);
-      if (!current.folders) current.folders = {};
-      current.folders[file.name] = subfolder[file.name];
-    } else if (file.name.endsWith(templateExtension)) {
-      current.templates.push(file.name.slice(0, -templateExtension.length));
-    } else if (file.name.endsWith(dataExtension)) {
-      current.data.push(file.name.slice(0, -dataExtension.length));
+      const subfolder = await getFolderContentRecursive(join(path, fileName), fileName);
+      (current.folders ??= {})[fileName] = subfolder[fileName];
+      continue;
+    }
+
+    if (fileName.endsWith(templateExtension)) {
+      current.templates.push(fileName.slice(0, -templateExtension.length));
+      continue;
+    }
+
+    if (fileName.endsWith(dataExtension)) {
+      current.data.push(fileName.slice(0, -dataExtension.length));
     }
   }
 
