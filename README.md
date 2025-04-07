@@ -10,6 +10,7 @@
 - [X] render page for editor
 - [X] load data
 - [X] introduce shared data
+- [X] handle site tree
 - [ ] send component data and schema to editor
 - [ ] save data
 - [ ] save partial data from front
@@ -28,6 +29,9 @@
 - [ ] rename Global
 - [ ] add socket to handle refresh
 - [ ] add site generator
+- [ ] add hsts in header https://hstspreload.org/
+- [ ] test built web site and server with https://developer.mozilla.org/en-US/observatory
+- [ ] include JSON-LD https://laconsole.dev/blog/booster-seo-jsonld
 
 ### front end
 - [ ] load data

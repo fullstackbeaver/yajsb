@@ -28,8 +28,8 @@ export async function renderPage(url: string, isEditor: boolean) {
 
   try {
     const { template } = await import(`${currentPath}/${templateToLoad}${templateExtension}`) as { template: Function };
-    setPageData(await readJsonFile(`${currentPath}/${slug ? slug : index}.data.json`));
-    !hasSharedData() && setSharedData(await readJsonFile(process.cwd() + "/shared.data.json"));
+    setPageData(await readJsonFile(`${currentPath}/${slug ? slug : index}.json`));
+    !hasSharedData() && setSharedData(await readJsonFile(process.cwd() + "/shared.json"));
 
     return {
       listeners: isEditor ? completePageData() : undefined,
