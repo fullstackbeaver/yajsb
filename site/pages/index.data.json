@@ -1,0 +1,28 @@
+{
+  "global" : {
+    "lang" : "fr",
+    "title" : "Le monde merveilleux de Lionel",
+    "creationDate" : "2023-01-01"
+  },
+  "header" : {
+    "pageHeader" : {
+      "metaDescription" : "Le monde merveilleux de Lionel",
+      "image"           : "https://beranger.fr/assets/og.jpg",
+      "pageType"        : "website"
+    }
+  },
+  "nav" : {
+    "mainNav" : {
+      "items" : [
+        {
+          "label" : "Accueil",
+          "link"  : "/"
+        },
+        {
+          "label" : "A propos",
+          "link"  : "/a-propos"
+        }
+      ]
+    }
+  }
+}

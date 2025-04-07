@@ -1,0 +1,20 @@
+{
+  "name": "site-generator",
+  "module": "index.ts",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "ls4bun": "github:fullstackbeaver/ls4bun",
+    "zod": "^3.24.2"
+  },
+  "scripts": {
+    "start": "bun run index.ts",
+    "updateComponentsList": "bun run scripts/updateComponentsList.ts"
+  }
+}

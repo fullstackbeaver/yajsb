@@ -1,0 +1,127 @@
+:root {
+  --bgParme: #9a2dfc;
+}
+
+body {
+  background-color: rgb(8, 16, 40);
+  padding         : .5rem;
+}
+
+tools {
+  display: grid;
+  grid:
+    "url url"    2rem
+    "desc desc"  3rem
+    "image type" 2rem
+    "title save" 2rem
+    / 4fr 1fr;
+  max-width    : 600px;
+  gap          : .5rem;
+  margin-bottom: .5rem
+}
+
+tools > div {
+  font-family     : 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  color           : white;
+  border          : none;
+  background-color: rgb(8, 16, 40);
+}
+
+tools input {
+  background-color: transparent;
+  border-bottom   : 2px solid purple;
+  border          : none;
+  color           : inherit;
+  outline         : none;
+}
+
+tools div button{
+  background-color: var(--bgParme);
+  border          : none;
+  border-radius   : 4px;
+  color           : inherit;
+  cursor          : pointer;
+  font-weight     : bold;
+}
+
+tools select {
+  -moz-appearance   : none;
+  -ms-appearance    : none;
+  -webkit-appearance: none;
+  appearance        : none;
+  background-color  : var(--bgParme);
+  background-image  : none;
+  border            : 0!important;
+  box-shadow        : none;
+  color             : #fff;
+  cursor            : pointer;
+  flex              : 1;
+  font-size         : 1em;
+  outline           : 0;
+  padding           : 0 .5em;
+  text-align        : center;
+}
+
+tools select::-ms-expand {
+   display: none;
+}
+
+tools *[data-title]::before {
+  content: attr(data-title);
+  margin-right: .5rem;
+}
+
+tools #pages {
+  grid-area: url;
+}
+
+tools #image{
+  grid-area:image;
+}
+
+tools #meta-description{
+  grid-area:desc;
+}
+
+tools #pageType{
+  grid-area: type;
+}
+
+tools #editor-title {
+  border     : none;
+  font-size  : 1.5rem;
+  font-weight: bold;
+  grid-area  : title;
+}
+
+tools #save {
+  -webkit-box-align          : center;
+  -webkit-box-pack           : center;
+  -webkit-tap-highlight-color: transparent;
+  align-items                : center;
+  background                 : linear-gradient(128.49deg, rgb(203, 60, 255) 19.86%, rgb(127, 37, 251) 68.34%);
+  border-radius              : 4px;
+  border-width               : 0;
+  box-shadow                 : none;
+  box-sizing                 : border-box;
+  color                      : white;
+  cursor                     : pointer;
+  display                    : inline-flex;
+  font-size                  : 1rem;
+  font-weight                : 500;
+  grid-area                  : save;
+  justify-content            : center;
+  letter-spacing             : 0.5px;
+  line-height                : 1.75;
+  margin                     : 0px;
+  min-width                  : 64px;
+  outline                    : 0px;
+  padding                    : 10px 18px;
+  position                   : relative;
+  text-decoration            : none;
+  text-transform             : initial;
+  transition                 : background-color 250ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1), border-color 250ms cubic-bezier(0.4, 0, 0.2, 1), color 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  user-select                : none;
+  vertical-align             : middle;
+  width                      : 100%;
+}

@@ -1,0 +1,1 @@
+export type Component = 'Header' | 'HtmlWithLang' | 'Global';
