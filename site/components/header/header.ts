@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import type { WrapperEditor } from "@core/components/components.types";
-import type { Global }        from "@coreComponents/global/global.types"
+import type { PageSettings }  from "@core/components/pageSettings/pageSettings.types"
 
 export const description = "header description";
 
@@ -19,13 +19,13 @@ export const wrapperEditor:WrapperEditor = {
 export type Header = z.infer<typeof schema>;
 
 type Arguments = {
-  global: Global
+  pageSettings: PageSettings
   header: Header
 }
 
-export function template({global, header}:Arguments){
+export function template({pageSettings, header}:Arguments){
 
-  const modification = global.modificationDate ? `<meta property="article:modified_time"  content="${global.modificationDate}" />` : "";
+  const modification = pageSettings.modificationDate ? `<meta property="article:modified_time"  content="${pageSettings.modificationDate}" />` : "";
 
   return`
 <meta http-equiv="Content-Type"         content="text/html; charset=utf-8" />
@@ -40,17 +40,17 @@ export function template({global, header}:Arguments){
 <meta name="twitter:data1"              content="Lionel" />
 <meta name="twitter:label2"             content="Durée de lecture estimée" />
 <meta name="twitter:data2"              content="=${header.duration} minute${header.duration === 1 ? "" : "s"}" />
-<meta property="og:locale"              content="${global.lang}_${global.lang.toUpperCase()}" />
+<meta property="og:locale"              content="${pageSettings.lang}_${pageSettings.lang.toUpperCase()}" />
 <meta property="og:type"                content="${header.pageType}" />
-<meta property="og:title"               content="${global.title}" />
+<meta property="og:title"               content="${pageSettings.title}" />
 <meta property="og:description"         content="${header.metaDescription}" />
-<meta property="og:url"                 content="${global.url}" />
+<meta property="og:url"                 content="${pageSettings.url}" />
 <meta property="og:site_name"           content="Le monde merveilleux de Lionel" />
-<meta property="article:published_time" content="${global.creationDate}" />
+<meta property="article:published_time" content="${pageSettings.creationDate}" />
 ${modification}
 
-<title>${global.title}</title>
+<title>${pageSettings.title}</title>
 <link rel="shortcut icon" href="/assets/favicon.ico">
-<link rel="canonical"     href="${global.url}" />
+<link rel="canonical"     href="${pageSettings.url}" />
 `;
 }

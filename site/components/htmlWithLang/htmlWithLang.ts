@@ -1,9 +1,9 @@
-import type { Global } from "@coreComponents/global/global.types";
+import type { PageSettings } from "@core/components/pageSettings/pageSettings.types";
 
 export const schema = null
 
-export function template({global}:{global:Global}){
+export function template({pageSettings}:{pageSettings:PageSettings}){
   return`
-<html lang="${global.lang}-${global.lang.toUpperCase()}">
+<html lang="${pageSettings.lang}-${pageSettings.lang.toUpperCase()}">
 `;
 }
