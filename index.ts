@@ -1,3 +1,5 @@
-import { useServer } from "@adapters/server/server";
+import { runServer }  from "@adapters/server/server";
+// import { runWatcher } from "@adapters/watcher/watcherRules";
 
-useServer();
+runServer();
+// runWatcher();

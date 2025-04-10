@@ -10,11 +10,12 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "chokidar": "^4.0.3",
     "ls4bun": "github:fullstackbeaver/ls4bun",
     "zod": "^3.24.2"
   },
   "scripts": {
-    "start": "bun run index.ts",
+    "start": "bun --watch run index.ts",
     "updateComponentsList": "bun run scripts/updateComponentsList.ts"
   }
 }
