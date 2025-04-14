@@ -1,4 +1,4 @@
-import { getPagesList, loadPage } from "./fetcher.js";
+import { getPagesList, loadPage } from "../fetcher.js";
 
 function generatePaths(obj, prefix = "") {
   let paths = [];
@@ -33,8 +33,3 @@ function encodeHtmlForJson(htmlContent){
   return htmlContent.replace(/"/g, '\\"');
 }
 
-// export async function getPageContent(url){
-//   const data = await loadPage(url);
-//   data.con
-
-// }

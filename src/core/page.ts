@@ -1,9 +1,15 @@
-import { URL } from 'url';
+import type { DataEntries, PageData }                                                                              from './data.type';
+import      { addComponentData, loadComponentsInformation }                                                        from './components/component';
+import      { dataExtension, index, localhost, pageFolder, pageSettings, projectRoot, srcPath, templateExtension } from "./constants";
+import      { getFolderContent, readJsonFile }                                                                     from "@adapters/files/files";
+import      { URL }                                                                                                from 'url';
+// import type { PageData }                                                              from '@site';
 
-import { basePage, index, srcPath, templateExtension }               from "./constants";
-import { completePageData, getGlobalData, getComponentData, setPageData, hasSharedData, setSharedData } from './data/data';
-import { findComponents, getComponent }                              from './components/component';
-import { getFolderContent, readJsonFile }                            from "@adapters/files/files";
+const messages     = [] as string[];
+let   editorData   = {} as any;       //TODO remettre le bon typage
+let   isEditor     = false;
+let   pageData     = {} as any        //TODO remettre le bon typage;
+let   usedPageData = {} as any;       // les données complétées par les schemas //TODO remettre le bon typage
 
 /**
  * Renders a page based on the provided URL and editor mode.
@@ -22,19 +28,20 @@ import { getFolderContent, readJsonFile }                            from "@adap
  */
 export async function renderPage(url: string, isEditor: boolean) {
 
-  await findComponents(srcPath);
+  editorData      = {};
+  messages.length = 0;
+  await loadComponentsInformation(srcPath);
 
   const { currentPath, templateToLoad, slug } = await extractFromUrl(url);
 
   try {
     const { template } = await import(`${currentPath}/${templateToLoad}${templateExtension}`) as { template: Function };
-    setPageData(await readJsonFile(`${currentPath}/${slug ? slug : index}.json`));
-    !hasSharedData() && setSharedData(await readJsonFile(process.cwd() + "/shared.json"));
+    pageData = await getPageData(currentPath, slug ? slug : index) as unknown as PageData;
+    addComponentData(pageSettings, pageData.pageSettings, true);
 
-    return {
-      listeners: isEditor ? completePageData() : undefined,
-      render   : minifyRenderedContent(template())
-    };
+    return isEditor
+      ? renderWithEditorInterface(template)
+      : minifyRenderedContent(template());
   }
   catch (error) {
     console.log("Error", error)
@@ -50,9 +57,9 @@ export async function renderPage(url: string, isEditor: boolean) {
  */
 async function extractFromUrl(url: string): Promise< {currentPath:string, templateToLoad:string, slug:string | undefined} > {
 
-  const urlObj      = new URL("http://localhost"+url);
+  const urlObj      = new URL(localhost+url);
   const cleanUrl    = urlObj.pathname;
-  const currentPath = [basePage];
+  const currentPath = [projectRoot+pageFolder];
   const urlAsArray  = cleanUrl
     .split("/")
     .slice(1);
@@ -80,23 +87,6 @@ async function extractFromUrl(url: string): Promise< {currentPath:string, templa
   };
 }
 
-
-/**
- * Renders a component's template with the associated data.
- *
- * @param componentName - The name of the component to be used.
- * @param id            - The identifier for the specific component data to be used.
- *
- * @returns The rendered template of the component with the provided data.
- */
-export function useComponent(componentName:string, id:string){
-  const { template, schema } = getComponent(componentName);
-  return template({
-    global         : getGlobalData(),
-    [componentName]: getComponentData(componentName, id, schema)
-  });
-}
-
 /**
  * Minify the rendered content by removing unnecessary whitespaces.
  *
@@ -118,4 +108,82 @@ function minifyRenderedContent(str:string) {
     .replace(/\s{2,}/g, ' ')  // Supprimer les espaces multiples
     .replace(/>\s+</g, '><')  // Supprimer les espaces autour des balises
     .trim();
+}
+
+function renderWithEditorInterface(template:Function) {
+
+  function addMessage() {
+    return messages.length === 0
+      ? ""
+      : `<messages><ul>${messages.map((message) => `<li>${message}</li>`).join("\n")}</ul></messages>`;
+  }
+
+  isEditor   = true;
+  editorData = {};
+  const html = template();
+
+  const scripts = /*html*/`
+  <script src="/_editor/interface.js" defer></script>
+  <script>
+    var editorData = ${JSON.stringify(editorData)}
+    var pageData   = ${JSON.stringify(pageData)}
+  </script>
+  <link href="/_editor/style.css" rel="stylesheet" />`;
+
+  const extraNodes = /*html*/`
+<editor>
+  ${addMessage()}
+</editor>
+  `;
+
+  return html
+    .replace(/<head>/, `<head>${scripts}`)
+    .replace("</body>", `${extraNodes}</body>`);
+}
+
+export function addMessage(message:string) {
+  messages.push(message);
+}
+
+export function isEditorMode() {
+  return isEditor;
+}
+
+export function addEditorData(component:string, id:string | undefined, data:DataEntries) {  //TODO check data type not right I think with multiples editor data
+  if (!editorData[component]) editorData[component] = data;
+  // editorData[component] ??= {};
+  // if (id !== undefined) editorData[component][id] = data;
+  // else editorData[component] = data;
+}
+
+export function addPageData(component:string, id:string | undefined, data:DataEntries) {
+  usedPageData[component] ??= {};
+  if (id !== undefined) usedPageData[component][id] = data;
+  else usedPageData[component] = data;
+}
+
+/**
+ * Retrieves the page data for a given page path and slug.
+ *
+ * The retrieved page data is merged with the shared data, and the merged data
+ * is returned.
+ *
+ * @param {string} pagePath - The path to the folder containing the page data.
+ * @param {string} slug     - The slug of the page.
+ *
+ * @return {Promise<PageData>} - The merged page data.
+ */
+async function getPageData(pagePath:string, slug:string) {
+  const pageData   = await readJsonFile(pagePath+"/"+slug+dataExtension) as PageData;
+  const sharedData = await readJsonFile(projectRoot+"/shared"+dataExtension) as PageData;
+  for (const [key, value] of Object.entries(sharedData)) {
+    pageData[key] = { ...(pageData[key] ?? {}) , ...value } as Record<string,DataEntries> | DataEntries;
+  }
+  return pageData;
+}
+
+export function getComponentDataFromPageData(componentName: keyof PageData, id?: string) {
+  return id !== undefined
+    ? pageData[componentName]?.[id]
+    : pageData[componentName];
 }

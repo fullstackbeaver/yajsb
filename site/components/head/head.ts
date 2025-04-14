@@ -1,9 +1,12 @@
 import { z } from "zod";
 
-import type { WrapperEditor } from "@core/components/components.types";
-import type { PageSettings }  from "@core/components/pageSettings/pageSettings.types"
+import type { PageData} from "@site";
+import type { WrapperEditor } from "@yajsb";
+// import type { PageSettings }  from "../pageSettings/pageSettings";
 
-export const description = "header description";
+export const description = "head description";
+
+export const isSingle = true;
 
 export const schema = z.object({
   duration       : z.number().default(0),
@@ -16,14 +19,9 @@ export const wrapperEditor:WrapperEditor = {
   imagePicker : ["image"]
 }
 
-export type Header = z.infer<typeof schema>;
+export type Head = z.infer<typeof schema>;
 
-type Arguments = {
-  pageSettings: PageSettings
-  header: Header
-}
-
-export function template({pageSettings, header}:Arguments){
+export function template({pageSettings, head}:PageData){
 
   const modification = pageSettings.modificationDate ? `<meta property="article:modified_time"  content="${pageSettings.modificationDate}" />` : "";
 
@@ -32,25 +30,25 @@ export function template({pageSettings, header}:Arguments){
 <meta http-equiv="X-UA-Compatible"      content="IE=edge" />
 <meta name="viewport"                   content="width=device-width, initial-scale=1" />
 <meta name="robots"                     content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-<meta name="description"                content="${header.metaDescription}" />
+<meta name="description"                content="${head.metaDescription}" />
 <meta name="author"                     content="Lionel" />
 <meta name="twitter:card"               content="summary_large_image" />
-<meta name=”twitter:image”              content="${header.image}" />
+<meta name=”twitter:image”              content="${head.image}" />
 <meta name="twitter:label1"             content="Écrit par" />
 <meta name="twitter:data1"              content="Lionel" />
 <meta name="twitter:label2"             content="Durée de lecture estimée" />
-<meta name="twitter:data2"              content="=${header.duration} minute${header.duration === 1 ? "" : "s"}" />
+<meta name="twitter:data2"              content="=${head.duration} minute${head.duration === 1 ? "" : "s"}" />
 <meta property="og:locale"              content="${pageSettings.lang}_${pageSettings.lang.toUpperCase()}" />
-<meta property="og:type"                content="${header.pageType}" />
+<meta property="og:type"                content="${head.pageType}" />
 <meta property="og:title"               content="${pageSettings.title}" />
-<meta property="og:description"         content="${header.metaDescription}" />
-<meta property="og:url"                 content="${pageSettings.url}" />
+<meta property="og:description"         content="${head.metaDescription}" />
+<meta property="og:url"                 content="${pageSettings.canonical}" />
 <meta property="og:site_name"           content="Le monde merveilleux de Lionel" />
 <meta property="article:published_time" content="${pageSettings.creationDate}" />
 ${modification}
 
 <title>${pageSettings.title}</title>
 <link rel="shortcut icon" href="/assets/favicon.ico">
-<link rel="canonical"     href="${pageSettings.url}" />
+<link rel="canonical"     href="${pageSettings.canonical}" />
 `;
 }

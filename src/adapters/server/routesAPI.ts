@@ -10,16 +10,15 @@ import { renderPage }       from "@core/page";
 
 const base = "/api/v1";
 
-export const localRoutes = {
+export const routesAPI = {
   [base+"/loadPage"]: (req:BunRequest) => handleRoute(req,{
     handler: async (request: WorkRequest) => {
 
       const url    = request.query?.get("u");
       if (!url) throw new Error("400|url not found");
 
-      const editor = request.query?.get("e");
       return {
-        body: await renderPage(sanitizeString(url), editor === "1"),
+        body: await renderPage(sanitizeString(url), true),
         status: 200
       };
     }
@@ -28,31 +27,31 @@ export const localRoutes = {
   [base+"/siteTree"]: (req:BunRequest) => handleRoute(req,{
     handler: async () => {
       return {
-        data: await getFileTree(),
+        body: await getFileTree(false, true),
         status: 200
       };
     }
   }),
 
-  [base+"/loadComponent/:component/:id"]: (req:BunRequest) => handleRoute(req,{
-    handler: async (request: WorkRequest) => {
+  // [base+"/loadComponent/:component/:id"]: (req:BunRequest) => handleRoute(req,{
+  //   handler: async (request: WorkRequest) => {
 
-      //TODO déplacer dans un controller
+  //     //TODO déplacer dans un controller
 
-      const { component, id } = request.params as { component: string, id: string };
-      if (!component || !id) throw new Error("400|component not found");
+  //     const { component, id } = request.params as { component: string, id: string };
+  //     if (!component || !id) throw new Error("400|component not found");
 
-      const { description, wrapperEditor, schema } = getComponent(component);
-      const data = getComponentData(component, id, schema);
+  //     const { description, wrapperEditor, schema } = getComponent(component);
+  //     // const data = getComponentData(component, id, schema);
 
-      return {
-        data,
-        description,
-        wrapperEditor,
-        status: 200
-      }
-    }
-  }),
+  //     return {
+  //       data,
+  //       description,
+  //       wrapperEditor,
+  //       status: 200
+  //     }
+  //   }
+  // }),
 
   /*
   example how to use validator for input (available also for output)
@@ -73,5 +72,5 @@ export const localRoutes = {
 
 
 
-  ...addStaticFolder(__dirname+"/../adminInterface", "/")
+  // ...addStaticFolder(__dirname+"/../adminInterface", "/")
 };

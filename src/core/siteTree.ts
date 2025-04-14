@@ -1,7 +1,7 @@
 import type { TemplateFolder} from "@adapters/files/files";
 
-import { basePage, index, pageFolder } from "./constants";
-import { getFolderContentRecursive }   from "@adapters/files/files";
+import { index, pageFolder, projectRoot } from "./constants";
+import { getFolderContentRecursive }      from "@adapters/files/files";
 
 let fileTree: string[] = [];
 
@@ -13,7 +13,7 @@ let fileTree: string[] = [];
  */
 export async function updateFileTree(): Promise<void> {
   fileTree.length = 0;
-  fileTree = getGeneratedPaths(await getFolderContentRecursive(basePage), true)
+  fileTree = getGeneratedPaths(await getFolderContentRecursive(projectRoot+pageFolder), true)
     .map(path => path.slice(pageFolder.length));
 
   if (fileTree[0] === "") fileTree[0] = "/";
@@ -23,17 +23,17 @@ export async function updateFileTree(): Promise<void> {
  * Returns a filtered array of paths based on the given options.
  *
  * @param {boolean}  includeAddLocation If true, will include paths where we could add a new page
- * @param {boolean}  excludeUnpublished If true, will exclude paths that are not yet published
+ * @param {boolean}  includeUnpublished If true, will include paths that are not yet published
  * @param {string[]} [refs]             The array of paths to filter
  *
  * @returns {string[]} The filtered array of paths
  */
-export function getFileTree(includeAddLocation: boolean, excludeUnpublished: boolean, refs=fileTree): string[] {
+export function getFileTree(includeAddLocation: boolean, includeUnpublished: boolean, refs=fileTree): string[] {
   return refs.filter((path) => {
     const lastElement = path.split("/").pop();
 
     if (!includeAddLocation && path.endsWith("+"))           return false;
-    if (excludeUnpublished && lastElement?.startsWith("_"))  return false;
+    if (!includeUnpublished && lastElement?.startsWith("_")) return false;
     return true;
   });
 }

@@ -41,6 +41,8 @@ This is a typescript project, based on Bun for performances. It use Zod for defi
 - [X] add description in component;
 - [X] handle site tree
 - [X] rename Global
+- [ ] add data for editor
+- [ ] Add eslint
 - [ ] send component data (WIP)
 - [ ] valid schema and save partial data from front
 - [ ] add system to publish page
@@ -53,11 +55,13 @@ This is a typescript project, based on Bun for performances. It use Zod for defi
 - [ ] add CSS builder
 - [ ] add tests
 - [ ] handle robot.txt
+- [ ] handle published and draft status
 - [ ] add socket to handle refresh
-- [ ] add hsts in header https://hstspreload.org/
+- [ ] add hsts in head https://hstspreload.org/
 - [ ] test built web site and server with https://developer.mozilla.org/en-US/observatory
 - [ ] include JSON-LD https://laconsole.dev/blog/booster-seo-jsonld
 - [ ] ??? : add dynmamic routes with for exampmle a folder like [lang] to set the lang. In this folder a json file will define which values are possibles.
+- [ ] rework to pure function
 
 ### front end
 - [ ] load data

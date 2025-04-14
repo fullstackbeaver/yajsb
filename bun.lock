@@ -105,7 +105,7 @@
 
     "lru-cache": ["lru-cache@10.4.3", "", {}, "sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ=="],
 
-    "ls4bun": ["ls4bun@github:fullstackbeaver/ls4bun#89e10b2", { "dependencies": { "isomorphic-dompurify": "^2.23.0" }, "peerDependencies": { "typescript": "^5.7.3" } }, "fullstackbeaver-ls4bun-89e10b2"],
+    "ls4bun": ["ls4bun@github:fullstackbeaver/ls4bun#f8898de", { "dependencies": { "isomorphic-dompurify": "^2.23.0" }, "peerDependencies": { "typescript": "^5.7.3" } }, "fullstackbeaver-ls4bun-f8898de"],
 
     "math-intrinsics": ["math-intrinsics@1.1.0", "", {}, "sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g=="],
 
