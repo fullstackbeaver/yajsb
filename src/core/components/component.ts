@@ -1,7 +1,7 @@
-import type { ComponentRenderData, Components, ComponentWithChild, ComponentWithoutChild } from "./component.types";
-import      { addMessage, addPageData, getComponentDataFromPageData, isEditorMode }        from "@core/page";
+import type { ComponentRenderData, Components, ComponentWithChild, ComponentWithoutChild, DescribeCpnArgs } from "./component.types";
+import      { addEditorData, addMessage, addPageData, getComponentDataFromPageData, isEditorMode }        from "@core/page";
 import      DOMPurify                                                                      from 'isomorphic-dompurify';
-import      { getDefaultData }                                                             from "@adapters/zod/zod";
+import      { getDefaultData, getSchemaKeys }                                                             from "@adapters/zod/zod";
 import      { getFolderContent }                                                           from "@adapters/files/files";
 import      { tsExtension }                                                                from "@core/constants";
 
@@ -48,9 +48,9 @@ export async function loadComponentsInformation(src: string[]) {
  * name, id, and page data schema, and finally render the template with this
  * data.
  *
- * @param {string}                 componentName     - The name of the component to render.
- * @param {string}                 [id]              - The unique identifier for the component data.
- * @param {Record<string,Function>}[useComponentCtx] - The context containing the following functions:
+ * @param {string}                 componentName  - The name of the component to render.
+ * @param {string}                 [id]           - The unique identifier for the component data.
+ * @param {Record<string,Function>}[context]      - The context containing the following functions:
  *    - addComponentData: adds the component data to the component data map.
  *    - addMmsg: adds a message to the messages array.
  *    - addPageData: adds the component data to the page data map.
@@ -62,11 +62,13 @@ export async function loadComponentsInformation(src: string[]) {
  *
  * @returns {string} The rendered template as a string.
  */
-export function useComponent(componentName:keyof Components, id?:string, {addComponentData, addMmsg, addPageData, dataFromPage, render, sendError}=useComponentCtx):string{
+export function useComponent(componentName:keyof Components, id?:string, context=useComponentCtx):string{
 
-  const editorMode                                       = isEditorMode();
-  const { description, schema, template, wrapperEditor } = components[componentName];  //TODO use description and wrapperEditor
-  let   data                                             = id
+  const { addComponentData, addMmsg, addPageData, dataFromPage, render, sendError } = context;
+
+  const editorMode                        = isEditorMode();
+  const { description, schema, template } = components[componentName];  //TODO use description
+  let   data                              = id
     ? (components?.[componentName] as ComponentWithChild).items?.[id]
     : (components?.[componentName] as ComponentWithoutChild)?.data
   const dataFromComponents = data !== undefined;
@@ -96,7 +98,8 @@ export function useComponent(componentName:keyof Components, id?:string, {addCom
 
   if ( editorMode ) {
     addPageData(componentName, id, data);
-    //TODO ajouter le wrapperEditor et description
+    !dataFromComponents && registerComponentForEditor(componentName, schema);
+    //TODO ajouter le description
   }
 
   return render({
@@ -121,12 +124,12 @@ export function useComponent(componentName:keyof Components, id?:string, {addCom
  * @returns {Promise<ComponentWithChild | ComponentWithoutChild>} - The component.
  */
 async function createComponent(path: string, componentName:string, SglCompCtx:string[] = singleComponents): Promise<ComponentWithChild | ComponentWithoutChild> {
-  const { description, isSingle, schema, template, wrapperEditor } = await import(`${path}/${componentName}/${componentName}${tsExtension}`);
+  const { description, isSingle, schema, template } = await import(`${path}/${componentName}/${componentName}${tsExtension}`);
   isSingle === true && SglCompCtx.push(componentName);
 
   return isSingle === true
-    ? { description, schema, template, wrapperEditor, data  : {} }
-    : { description, schema, template, wrapperEditor, items : {} }
+    ? { description, schema, template, data  : {} }
+    : { description, schema, template, items : {} }
 }
 
 /**
@@ -215,3 +218,10 @@ function errorComponent(msg: string) {
 //   return matches;
 // }
 
+function registerComponentForEditor(componentName:string,schema:any){
+  addEditorData(componentName, getSchemaKeys(schema));
+}
+
+export function describeComponent(description:DescribeCpnArgs){
+  return JSON.stringify(description);
+}

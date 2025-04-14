@@ -28,7 +28,6 @@ let   usedPageData = {} as any;       // les données complétées par les schem
  */
 export async function renderPage(url: string, isEditor: boolean) {
 
-  editorData      = {};
   messages.length = 0;
   await loadComponentsInformation(srcPath);
 
@@ -112,7 +111,7 @@ function minifyRenderedContent(str:string) {
 
 function renderWithEditorInterface(template:Function) {
 
-  function addMessage() {
+  function listMessages() {
     return messages.length === 0
       ? ""
       : `<messages><ul>${messages.map((message) => `<li>${message}</li>`).join("\n")}</ul></messages>`;
@@ -132,7 +131,7 @@ function renderWithEditorInterface(template:Function) {
 
   const extraNodes = /*html*/`
 <editor>
-  ${addMessage()}
+  ${listMessages()}
 </editor>
   `;
 
@@ -149,11 +148,8 @@ export function isEditorMode() {
   return isEditor;
 }
 
-export function addEditorData(component:string, id:string | undefined, data:DataEntries) {  //TODO check data type not right I think with multiples editor data
-  if (!editorData[component]) editorData[component] = data;
-  // editorData[component] ??= {};
-  // if (id !== undefined) editorData[component][id] = data;
-  // else editorData[component] = data;
+export function addEditorData(component:string, data:unknown){
+  editorData[component] = data;
 }
 
 export function addPageData(component:string, id:string | undefined, data:DataEntries) {

@@ -13,6 +13,7 @@ const linkSchema = z.object({
     .describe("Description pour text"),
   ariaLabel: z.string()
     .default("what this link does")
+    .optional()
     .describe("Description pour ariaLabel")
 });
 

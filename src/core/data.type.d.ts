@@ -7,7 +7,6 @@ export type DataEntries = {
 }
 type DataEntry = number | string | undefined
 
-export type EditorData = {
-  description?: string,
-  wrapperEditor?: WrapperEditor
-}
+// export type EditorData = {
+//   description?: string,
+// }

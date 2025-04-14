@@ -1,23 +1,15 @@
 import { z } from "zod";
 
 import type { PageData} from "@site";
-import type { WrapperEditor } from "@yajsb";
-// import type { PageSettings }  from "../pageSettings/pageSettings";
 
 export const description = "head description";
-
-export const isSingle = true;
-
-export const schema = z.object({
+export const isSingle    = true;
+export const schema      = z.object({
   duration       : z.number().default(0),
   image          : z.string().default(""),
   metaDescription: z.string().default(""),
   pageType       : z.enum(["article", "website"]).default("website")
 });
-
-export const wrapperEditor:WrapperEditor = {
-  imagePicker : ["image"]
-}
 
 export type Head = z.infer<typeof schema>;
 

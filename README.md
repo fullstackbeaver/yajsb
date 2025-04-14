@@ -76,6 +76,9 @@ This is a typescript project, based on Bun for performances. It use Zod for defi
 - [ ] add link target selector
 - [ ] refresh on server reload
 
+### common front & back
+- [ ] handle field description (only wrapper currently supported)
+
 ### scripts
 - [ ] add name validation in script that register component to avoid redifining built in component
 - [ ] add a script that create a component (use watcher instead) (WIP)

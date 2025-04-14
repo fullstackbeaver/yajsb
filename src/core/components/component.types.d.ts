@@ -1,14 +1,11 @@
 import type { ZodSchema } from "zod";
 
-export type WrapperEditor = Partial<{ [editorSpecial in EditorPossibility]: string[] }>
-
-type EditorPossibility = "html" | "imagePicker" | "json" | "link" | "text" | "video" // TODO : add code for each possibility
+type EditorPossibility = "html" | "imagePicker" | "urlPicker" | "videoPicker" // TODO : add code for each possibility
 
 export type ComponentMainData     = {
   description   : string
   schema        : ZodSchema | null
   template      : Function
-  wrapperEditor?: WrapperEditor
 };
 
 export type Components = Record<string, ComponentWithChild | ComponentWithoutChild>
@@ -30,4 +27,9 @@ export type ComponentRenderData = {
   id          : string | undefined
   pageSettings: ComponentItemData
   template    : Function
+}
+
+export type DescribeCpnArgs = {
+  message ?: string
+  wrapper ?: EditorPossibility
 }

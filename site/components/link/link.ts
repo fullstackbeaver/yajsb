@@ -1,13 +1,14 @@
-import type { PageData } from "@site";
-import { z } from "zod";
+import type { PageData }          from "@site";
+import      { describeComponent } from "@core/components/component";
+import      { z }                 from "zod";
 
 export const description = "link description";
 
 export const schema = z.object({
-  ariaLabel: z.string().optional(),
+  ariaLabel: z.string().optional().describe(describeComponent({ wrapper : "imagePicker"})),
   text     : z.string().default("text"),
-  url      : z.string().default("#")
-})
+  url      : z.string().default("#").describe(describeComponent({ wrapper : "html", message : "jkljkljkjl"})),
+});
 
 export type Link = z.infer<typeof schema>
 
