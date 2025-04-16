@@ -1,5 +1,8 @@
-let isActive  = false;
-let isVisible = false;
+const useHtmlEditor = [];
+
+let   isActive      = false;
+let   isVisible     = false;
+let   usedEditor    = "";
 
 const dom = {
   body          : document.querySelector("body"),
@@ -13,17 +16,15 @@ const dom = {
   modalClose    : document.getElementById("dialogClose"),
   modalContent  : document.querySelector("dialog > form"),
   modalTitle    : document.querySelector("dialog > h3"),
+  modalSave     : document.getElementById("dialogSave"),
   panel         : document.querySelector("editor"),
 };
 
 window.onload = () => {
   // refreshPagesList();
   // getPage("/")
-  // console.log({editorData, pageData});
   // dom.list.onchange = changePage;
   // dom.save.onclick  = savePage;*
-
-  console.log({pageData, editorData});
 
   dom.body.setAttribute('data-active', 'false');
 
@@ -41,23 +42,25 @@ window.onload = () => {
 
   dom.mainSwitch.onchange = function () { updateBodyActive(this.checked); };
   dom.btShowHide.onclick  = () => { updatePanelVisible(!isVisible); };
-  dom.modalClose.onclick = closeModale;
+  dom.modalClose.onclick = closeModal;
+  dom.modalSave.onclick  = saveNewData;
 }
 
 async function openModal(editorValue) {
 
   const {component, data, id} = extractData(editorValue);
-  dom.modalTitle.innerText = component;
-  console.log(editorValue, {component, id, data})
-
-  dom.modalContent.innerHTML = Object.entries(data)
+  usedEditor                  = editorValue;
+  useHtmlEditor.length        = 0;
+  dom.modalTitle.innerText    = component;
+  dom.modalContent.innerHTML  = Object.entries(data)
     .map(addField)
     .join("");
 
   dom.modal.showModal();
+  useHtmlEditor.forEach(ref => useTinyMce('#'+ref));
 }
 
-function closeModale() {
+function closeModal() {
   dom.modal.close();
 }
 
@@ -88,16 +91,13 @@ function extractData(editorValue) {
       id = editor;
       editor = undefined;
     }
-    console.log(component, editor)
   }
 
-  const merged = {};
-  const data= getDataFromPageData();
+  const data     = getDataFromPageData();
   const elements = editor
     ? editorData[component][editor]
     : editorData[component];
-
-  console.log(elements, data)
+  const merged   = {};
 
   const merging = new Set([
     ...Object.keys(elements || {}),
@@ -121,16 +121,17 @@ function extractData(editorValue) {
 function addField([entryName, { element, data }]) {
   function fill() {
     //TODO add enum, number
-    const ref= element+entryName;
+    // const ref= element+entryName;
     switch (element) {
       case "string":
-        return /*html*/`<label for="${ref}">${entryName}${isOptional ? "" : "*"}</label><input type="text" id="${ref}" name="${element}" value="${data ? data : ""}">`;
+        return /*html*/`<label for="${entryName}">${entryName}${isOptional ? "" : "*"}</label><input type="text" id="${entryName}" name="${element}" value="${data ? data : ""}">`;
       case "number":
-        return /*html*/`<label for="${ref}">${entryName}${isOptional ? "" : "*"}</label><input type="number" id="${ref}" name="${element}" value="${data ? data : ""}">`;
+        return /*html*/`<label for="${entryName}">${entryName}${isOptional ? "" : "*"}</label><input type="number" id="${entryName}" name="${element}" value="${data ? data : ""}">`;
       case "boolean":
-        return /*html*/`<label for="${ref}">${entryName}${isOptional ? "" : "*"}</label><input type="checkbox" id="${ref}" name="${element}" value="${data ? data : ""}">`;
+        return /*html*/`<label for="${entryName}">${entryName}${isOptional ? "" : "*"}</label><input type="checkbox" id="${entryName}" name="${element}" value="${data ? data : ""}">`;
       case "html":
-        return /*html*/`${entryName}${isOptional ? "" : "*"}<tinymce-editor id="${ref}" api-key="2twbfyfjocws7ln2yp1xbioznajuwpd2obek1kwsiev66noc">${data}</tinymce-editor>`;
+        useHtmlEditor.push(entryName);
+        return /*html*/`${entryName}${isOptional ? "" : "*"}<textarea id="${entryName}">${data}</textarea>`;
       case "enum":
         alert("coder la prise en charge de l'enum");
         return "coder la prise en charge de l'enum";
@@ -139,7 +140,40 @@ function addField([entryName, { element, data }]) {
         return "";
     }
   }
+
   const isOptional = element.endsWith('?');
   if (isOptional) element = element.slice(0, -1);
   return /*html*/`<article>${fill()}</div>`;
+};
+
+function useTinyMce(selector) {
+  tinymce.init({
+    selector,
+    height: '700px',
+    toolbar_sticky: true,
+    icons: 'thin',
+    autosave_restore_when_empty: true
+  });
+}
+
+function saveNewData() {
+  const {component, data, id} = extractData(usedEditor);
+  const result = {
+    component,
+    data      : {},
+    editorData: usedEditor,
+    id,
+    page: new URL(document.URL).pathname
+  };
+  for (const key of Object.keys(data)) {
+    const value = data[key].element.startsWith("html")
+      ? tinymce.get(key).getContent({ format: "text" })
+      : document.querySelector("dialog #"+key).value;
+    if (value !== "" && !data[key].element.endsWith('?')) result.data[key] = value;
+  }
+
+  console.log(result)
+
+  //TODO envoyer requete pour envoyer les données
+  closeModal();
 }

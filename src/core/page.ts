@@ -121,8 +121,13 @@ function renderWithEditorInterface(template:Function) {
   const html = template();
 
   const scripts = /*html*/`
-  <!--<script src="/_editor/tinymce/tinymce.min.js"></script>-->
+  <!--
+  <script src="/_editor/tinymce/tinymce.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tinymce/tinymce-webcomponent@2/dist/tinymce-webcomponent.min.js"></script>
+  <script src="https://cdn.tiny.cloud/1/your-tinymce-apikey/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+  -->
+  <script src="https://cdn.tiny.cloud/1/2twbfyfjocws7ln2yp1xbioznajuwpd2obek1kwsiev66noc/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
   <script src="/_editor/interface.js" defer></script>
   <script>
     var editorData = ${JSON.stringify(editorData)}
@@ -149,7 +154,7 @@ function renderWithEditorInterface(template:Function) {
   <button id="dialogClose">X</button>
   <form method="dialog"></form>
   <button autofocus type="reset" onclick="this.closest('dialog').close('cancel')">Cancel</button>
-  <button type="submit" value="confirm">Confirm</button>
+  <button id="dialogSave" >Save</button>
 </dialog>
   `;
 
