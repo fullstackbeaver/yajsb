@@ -10,6 +10,10 @@
     "image"          : "https://lionel.fr/assets/og.jpg",
     "pageType"       : "website"
   },
+  "hero": {
+    "content": "<h1>Le monde merveilleux de Lionel</h1>",
+    "image": "/banner.jpg"
+  },
   "nav": {
     "mainNav": {
       "l1": {

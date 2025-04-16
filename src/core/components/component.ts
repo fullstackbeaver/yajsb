@@ -1,15 +1,14 @@
-import type { ComponentRenderData, Components, ComponentWithChild, ComponentWithoutChild, DescribeCpnArgs } from "./component.types";
-import      { addEditorData, addMessage, addPageData, getComponentDataFromPageData, isEditorMode }        from "@core/page";
-import      DOMPurify                                                                      from 'isomorphic-dompurify';
-import      { getDefaultData, getSchemaKeys }                                                             from "@adapters/zod/zod";
-import      { getFolderContent }                                                           from "@adapters/files/files";
-import      { tsExtension }                                                                from "@core/constants";
+import type { ComponentMainData, ComponentRenderData, Components, DescribeCpnArgs }                                 from "./component.types";
+import      { addEditorData, addMessage, addPageData, getComponentDataFromPageData, getPageSettings, isEditorMode } from "@core/page";
+import      { getDefaultData, getSchemaKeys }                                                                       from "@adapters/zod/zod";
+import      DOMPurify                                                                                               from 'isomorphic-dompurify';
+import      { getFolderContent }                                                                                    from "@adapters/files/files";
+import      { tsExtension }                                                                                         from "@core/constants";
 
 const components       = {} as Components;
 const singleComponents = [] as string[];
 
 const useComponentCtx = {
-  addComponentData: addComponentData,
   addMmsg         : addMessage,
   addPageData     : addPageData,
   dataFromPage    : getComponentDataFromPageData,
@@ -51,7 +50,6 @@ export async function loadComponentsInformation(src: string[]) {
  * @param {string}                 componentName  - The name of the component to render.
  * @param {string}                 [id]           - The unique identifier for the component data.
  * @param {Record<string,Function>}[context]      - The context containing the following functions:
- *    - addComponentData: adds the component data to the component data map.
  *    - addMmsg: adds a message to the messages array.
  *    - addPageData: adds the component data to the page data map.
  *    - dataFromPage: returns the component data from the page data map.
@@ -64,48 +62,40 @@ export async function loadComponentsInformation(src: string[]) {
  */
 export function useComponent(componentName:keyof Components, id?:string, context=useComponentCtx):string{
 
-  const { addComponentData, addMmsg, addPageData, dataFromPage, render, sendError } = context;
+  const { addMmsg, addPageData, dataFromPage, render, sendError } = context;
 
   const editorMode                        = isEditorMode();
   const { description, schema, template } = components[componentName];  //TODO use description
-  let   data                              = id
-    ? (components?.[componentName] as ComponentWithChild).items?.[id]
-    : (components?.[componentName] as ComponentWithoutChild)?.data
-  const dataFromComponents = data !== undefined;
 
-  if (!dataFromComponents) data = dataFromPage(componentName, id);
+  let   data = dataFromPage(componentName, id);
 
-  if ( schema == undefined && template === undefined)
+  if ( schema === undefined && template === undefined)
     return sendError(`Component ${componentName} not found or has no schema or template`);
 
-  if ((schema === undefined || schema === null) && data === undefined)
+  if (schema === undefined && !hasData(data) && template.length > 0)
     return sendError(`Schema not found for component ${componentName}, and no data found${id !== undefined ? " for "+id : ""} in pageData`);
 
-  if (schema !== null) {
-    if (data !== undefined) {
-
-      const validation = schema.safeParse(data);
-      if (!validation.success)
-        return sendError("Error in "+componentName+(id !== undefined ? "."+id : "")+": "+validation.error.message);
-    }
-    else {
-      data = getDefaultData(schema);
-      addMmsg("default values used for "+componentName+(id !== undefined ? "."+id : ""));
-    }
+  if (schema !== null && hasData(data)) {
+    const validation = schema.safeParse(data);
+    if (!validation.success)
+      return sendError("Error in "+componentName+(id !== undefined ? "."+id : "")+": "+validation.error.message);
   }
 
-  ! dataFromComponents && addComponentData(componentName, data);
+  if (schema !== null && !hasData(data)) {
+    data = getDefaultData(schema);
+    addMmsg("default values used for "+componentName+(id !== undefined ? "."+id : ""));
+  }
 
   if ( editorMode ) {
-    addPageData(componentName, id, data);
-    !dataFromComponents && registerComponentForEditor(componentName, schema);
+    hasData(data) && addPageData(componentName, id, data);
+    schema !== null && schema !== undefined && registerComponentForEditor(componentName, schema);
     //TODO ajouter le description
   }
 
   return render({
     data,
     editorMode,
-    pageSettings: (components.pageSettings as ComponentWithoutChild).data,
+    pageSettings: getPageSettings(),
     template,
     component: componentName,
     id
@@ -121,15 +111,13 @@ export function useComponent(componentName:keyof Components, id?:string, context
  * @param {string}   componentName - The name of the component.
  * @param {string[]} [SglCompCtx]  - The list of single components to update.It is defined by default and should be modified only during tests
  *
- * @returns {Promise<ComponentWithChild | ComponentWithoutChild>} - The component.
+ * @returns {Promise<ComponentMainData>} - The component.
  */
-async function createComponent(path: string, componentName:string, SglCompCtx:string[] = singleComponents): Promise<ComponentWithChild | ComponentWithoutChild> {
+async function createComponent(path: string, componentName:string, SglCompCtx:string[] = singleComponents): Promise<ComponentMainData> {
   const { description, isSingle, schema, template } = await import(`${path}/${componentName}/${componentName}${tsExtension}`);
   isSingle === true && SglCompCtx.push(componentName);
 
-  return isSingle === true
-    ? { description, schema, template, data  : {} }
-    : { description, schema, template, items : {} }
+  return { description, schema, template }
 }
 
 /**
@@ -170,28 +158,6 @@ function render({data, editorMode, pageSettings, component, id, template}:Compon
 
 
 /**
- * Adds data to a component.
- *
- * If the component is a single component, the data is added as a whole.
- * If the component is a component with children, the data is added as items.
- *
- * @param {string}     componentName - The name of the component.
- * @param {any}        data          - The data to add to the component.
- * @param {boolean}    [forceSingle] - If true, the component will be treated as a single component.
- * @param {Components} [cpnCtx]      - The context of components. should be modified only during tests
- *
- * @returns {void}
- */
-export function addComponentData(componentName: string, data:any, forceSingle= false, cpnCtx = components) {
-  if (singleComponents.includes(componentName) || forceSingle) {
-    (cpnCtx[componentName] as ComponentWithoutChild).data = data;
-  }else {
-    (cpnCtx[componentName] as ComponentWithChild).items = data;
-  }
-}
-
-
-/**
  * Logs an error message and returns an empty string.
  *
  * This is a utility function for returning a value from a component
@@ -224,4 +190,10 @@ function registerComponentForEditor(componentName:string,schema:any){
 
 export function describeComponent(description:DescribeCpnArgs){
   return JSON.stringify(description);
+}
+
+function hasData(data:object){
+  if (!data || data === undefined) return false;
+  if (Object.keys(data).length > 0 ) return true;
+  return false;
 }

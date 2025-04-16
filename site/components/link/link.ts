@@ -5,9 +5,9 @@ import      { z }                 from "zod";
 export const description = "link description";
 
 export const schema = z.object({
-  ariaLabel: z.string().optional().describe(describeComponent({ wrapper : "imagePicker"})),
+  ariaLabel: z.string().optional(),
   text     : z.string().default("text"),
-  url      : z.string().default("#").describe(describeComponent({ wrapper : "html", message : "jkljkljkjl"})),
+  url      : z.string().default("#")
 });
 
 export type Link = z.infer<typeof schema>

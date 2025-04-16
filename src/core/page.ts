@@ -1,8 +1,8 @@
-import type { DataEntries, PageData }                                                                              from './data.type';
-import      { addComponentData, loadComponentsInformation }                                                        from './components/component';
-import      { dataExtension, index, localhost, pageFolder, pageSettings, projectRoot, srcPath, templateExtension } from "./constants";
-import      { getFolderContent, readJsonFile }                                                                     from "@adapters/files/files";
-import      { URL }                                                                                                from 'url';
+import type { DataEntries, PageData }                                                                from './data.type';
+import      { dataExtension, index, localhost, pageFolder, projectRoot, srcPath, templateExtension } from "./constants";
+import      { getFolderContent, readJsonFile }                                                       from "@adapters/files/files";
+import      { URL }                                                                                  from 'url';
+import      { loadComponentsInformation }                                                            from './components/component';
 // import type { PageData }                                                              from '@site';
 
 const messages     = [] as string[];
@@ -36,7 +36,6 @@ export async function renderPage(url: string, isEditor: boolean) {
   try {
     const { template } = await import(`${currentPath}/${templateToLoad}${templateExtension}`) as { template: Function };
     pageData = await getPageData(currentPath, slug ? slug : index) as unknown as PageData;
-    addComponentData(pageSettings, pageData.pageSettings, true);
 
     return isEditor
       ? renderWithEditorInterface(template)
@@ -122,17 +121,36 @@ function renderWithEditorInterface(template:Function) {
   const html = template();
 
   const scripts = /*html*/`
+  <!--<script src="/_editor/tinymce/tinymce.min.js"></script>-->
+  <script src="https://cdn.jsdelivr.net/npm/@tinymce/tinymce-webcomponent@2/dist/tinymce-webcomponent.min.js"></script>
   <script src="/_editor/interface.js" defer></script>
   <script>
     var editorData = ${JSON.stringify(editorData)}
-    var pageData   = ${JSON.stringify(pageData)}
+    var pageData   = ${JSON.stringify(usedPageData)}
   </script>
   <link href="/_editor/style.css" rel="stylesheet" />`;
 
   const extraNodes = /*html*/`
 <editor>
+  <h1>Yajsb Editor</h1>
+  <label class="toggle-switch">
+    <input type="checkbox" id="mainSwitch">
+    <span class="slider"></span>
+  </label>
+  <button id="showHide">hide</button>
+
   ${listMessages()}
+  <button id="ps">Page Settings</button>
+  <button id="add">Add Page</button>
+  <button id="deploy">deploy</button>
 </editor>
+<dialog>
+  <h3></h3>
+  <button id="dialogClose">X</button>
+  <form method="dialog"></form>
+  <button autofocus type="reset" onclick="this.closest('dialog').close('cancel')">Cancel</button>
+  <button type="submit" value="confirm">Confirm</button>
+</dialog>
   `;
 
   return html
@@ -182,4 +200,8 @@ export function getComponentDataFromPageData(componentName: keyof PageData, id?:
   return id !== undefined
     ? pageData[componentName]?.[id]
     : pageData[componentName];
+}
+
+export function getPageSettings(){
+  return pageData.pageSettings;
 }

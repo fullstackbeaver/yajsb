@@ -1,4 +1,201 @@
-/* :root {
+body[data-active="true"] {
+  *[data-editor] {
+    border: 2px dotted red;
+  }
+}
+
+editor {
+  background-color: #4CAF50;
+  border-radius: .5rem;
+  display: grid;
+  gap: .5rem;
+  grid:
+    "logo logo logo toggle" 4rem
+    "evt evt evt evt" auto
+    "showHide ps add deploy" 4rem
+    / 4rem 4rem 4rem 4rem;
+  padding: 1rem;
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  transition: opacity 0.3s ease;
+
+  &[data-visible="true"] {
+    z-index: 100;
+    opacity: 1;
+  }
+
+  &[data-visible="false"] {
+    opacity: 0.15;
+    z-index: 0;
+  }
+
+  .toggle-switch {
+    grid-area: toggle;
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+    align-self: center;
+    justify-self: center;
+
+    input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      background-color: #ccc;
+      border-radius: 26px;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      transition: background-color 0.4s;
+      border: 1px solid white;
+
+      &::before {
+        content: "";
+        position: absolute;
+        height: 20px;
+        width: 20px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        border-radius: 50%;
+        transition: transform 0.4s;
+      }
+    }
+
+    input:checked + .slider {
+      background-color: #4CAF50;
+
+      &::before {
+        transform: translateX(24px);
+      }
+    }
+  }
+
+  button {
+    background-color: transparent;
+    border: 2px solid white;
+    border-radius: 50%;
+    width: 4rem;
+    height: 4rem;
+    color: white;
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    &#showHide {
+      grid-area: showHide;
+    }
+
+    &#deploy {
+      grid-area: deploy;
+    }
+
+    &#add {
+      grid-area: add;
+    }
+
+    &#ps {
+      grid-area: ps;
+      justify-self: end;
+    }
+  }
+
+  h1 {
+    grid-area: logo;
+    text-align: left;
+    color: white;
+    font-size: 1.5rem;
+  }
+
+  messages {
+    grid-area: evt;
+  }
+}
+
+dialog {
+  bottom: 0;
+  right: 1rem;
+  width: 600px;
+  border: 0;
+  box-shadow: rgba(0, 0, 0, 0.14) 0 0 8px;
+  border-radius: .5rem;
+  grid:
+    "title close" 2rem
+    "content content" auto
+    "bt1 bt2" 2rem
+    / 1fr 1fr;
+
+  button:first-of-type {
+    grid-area: close;
+  }
+
+  h3 {
+    grid-area: title;
+    align-self: center;
+  }
+
+  form {
+    grid-area: content;
+    padding: 1rem;
+  }
+
+  button:nth-of-type(2) {
+    grid-area: bt1;
+  }
+
+  button:nth-of-type(3) {
+    grid-area: bt2;
+  }
+
+  label {
+    width: 5rem;
+    display: inline-block;
+  }
+
+  article {
+    margin: .5rem 0;
+
+    input {
+      width: calc(100% - 6rem);
+    }
+  }
+
+  &::backdrop {
+    transition: backdrop-filter 1s ease;
+  }
+
+  &[open] {
+    display: grid;
+
+    &::backdrop {
+      backdrop-filter: blur(5px);
+    }
+  }
+
+  &[close] {
+    display: none;
+
+    &::backdrop {
+      backdrop-filter: blur(0px);
+    }
+  }
+}
+
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+
+
+  /* :root {
   --bgParme: #9a2dfc;
 }
 
@@ -9,7 +206,7 @@ body {
 
 tools {
   display: grid;
-  grid:
+  grid   : 
     "url url"    2rem
     "desc desc"  3rem
     "image type" 2rem
@@ -67,7 +264,7 @@ tools select::-ms-expand {
 }
 
 tools *[data-title]::before {
-  content: attr(data-title);
+  content     : attr(data-title);
   margin-right: .5rem;
 }
 
@@ -76,11 +273,11 @@ tools #pages {
 }
 
 tools #image{
-  grid-area:image;
+  grid-area: image;
 }
 
 tools #meta-description{
-  grid-area:desc;
+  grid-area: desc;
 }
 
 tools #pageType{

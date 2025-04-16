@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type { PageData } from "@site";
+import { describeComponent } from "@core/components/component";
 
 export const description = "nav description";
 
