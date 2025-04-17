@@ -3,7 +3,7 @@ import type {WorkRequest} from "ls4bun";
 
 import type { BunRequest }  from "bun";
 import { getFileTree } from "@core/siteTree";
-import { renderPage } from "@core/page";
+import { renderPage } from "@core/pages/page";
 // import type { WorkRequest } from "ls4bun";
 
 // import { getComponent }     from "@core/components/component";

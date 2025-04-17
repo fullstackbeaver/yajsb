@@ -4,6 +4,7 @@ import { join }    from 'path';
 import { readdir } from "node:fs/promises";
 
 import { dataExtension, templateExtension } from '@core/constants';
+import { writeFile } from 'node:fs';
 
 export type TemplateFolder = {
   data      : string[]
@@ -19,7 +20,7 @@ export function getFolderContent(path: string | string[]) :Promise<string[]> {
 }
 
 export function writeToFile(path: string, data: string) {
-  return Bun.write(path, data);
+  return Bun.write( path, data );
 }
 
 export function readJsonFile(path: string) {
@@ -59,4 +60,8 @@ export async function getFolderContentRecursive( path: string | string[], folder
     [name]: current,
   };
 
+}
+
+export function writeJson(path: string, data: any) {
+  writeToFile(path, JSON.stringify(data, null, 2));
 }

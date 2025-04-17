@@ -1,28 +1,29 @@
-import { addStaticFolder, handleRoute, sanitizeString } from "ls4bun";
-
-import type { BunRequest }  from "bun";
-import type { WorkRequest } from "ls4bun";
-
-import { getComponent }     from "@core/components/component";
-import { getComponentData } from "@core/data/data";
-import { getFileTree }      from "@core/siteTree";
-import { renderPage }       from "@core/page";
+import      { Method, handleRoute }    from "ls4bun";
+import type { BunRequest }             from "bun";
+import type { PartitalPageUpdateArgs } from "@core/pages/pages.types";
+import type { WorkRequest }            from "ls4bun";
+import      { getFileTree }            from "@core/siteTree";
+import      { partialPageUpdate }      from "@core/pages/page";
 
 const base = "/api/v1";
 
 export const routesAPI = {
-  [base+"/loadPage"]: (req:BunRequest) => handleRoute(req,{
+  [base+"/update-partial"]: {
+    [Method.POST]: (req:BunRequest) => handleRoute(req,{
     handler: async (request: WorkRequest) => {
 
-      const url    = request.query?.get("u");
-      if (!url) throw new Error("400|url not found");
+      //TODO ajouter vérif des données
+      // const url    = request.query?.get("u");
+      // if (!url) throw new Error("400|url not found");
+
+
 
       return {
-        body: await renderPage(sanitizeString(url), true),
+        body: await partialPageUpdate(await request.body as PartitalPageUpdateArgs),
         status: 200
       };
     }
-  }),
+  })},
 
   [base+"/siteTree"]: (req:BunRequest) => handleRoute(req,{
     handler: async () => {

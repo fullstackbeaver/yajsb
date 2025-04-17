@@ -1,9 +1,10 @@
 import type { ComponentMainData, ComponentRenderData, Components, DescribeCpnArgs }                                 from "./component.types";
-import      { addEditorData, addMessage, addPageData, getComponentDataFromPageData, getPageSettings, isEditorMode } from "@core/page";
+import      { addEditorData, addMessage, addPageData, getComponentDataFromPageData, getPageSettings, isEditorMode } from "@core/pages/page";
 import      { getDefaultData, getSchemaKeys }                                                                       from "@adapters/zod/zod";
 import      DOMPurify                                                                                               from 'isomorphic-dompurify';
 import      { getFolderContent }                                                                                    from "@adapters/files/files";
 import      { tsExtension }                                                                                         from "@core/constants";
+import type { Component } from "@site";
 
 const components       = {} as Components;
 const singleComponents = [] as string[];
@@ -11,6 +12,7 @@ const singleComponents = [] as string[];
 const useComponentCtx = {
   addMmsg         : addMessage,
   addPageData     : addPageData,
+  components,
   dataFromPage    : getComponentDataFromPageData,
   render          : render,
   sendError       : errorComponent
@@ -62,12 +64,13 @@ export async function loadComponentsInformation(src: string[]) {
  */
 export function useComponent(componentName:keyof Components, id?:string, context=useComponentCtx):string{
 
-  const { addMmsg, addPageData, dataFromPage, render, sendError } = context;
+  const { addMmsg, addPageData, components, dataFromPage, render, sendError } = context;
 
   const editorMode                        = isEditorMode();
+  console.log("componentName", componentName, components);
   const { description, schema, template } = components[componentName];  //TODO use description
 
-  let   data = dataFromPage(componentName, id);
+  let   data = dataFromPage(componentName as Component, id);
 
   if ( schema === undefined && template === undefined)
     return sendError(`Component ${componentName} not found or has no schema or template`);

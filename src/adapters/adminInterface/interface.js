@@ -1,33 +1,28 @@
+const apiUrl        = "/api/v1";
+const dom           = {
+  body: document.querySelector("body")
+};
 const useHtmlEditor = [];
 
 let   isActive      = false;
 let   isVisible     = false;
 let   usedEditor    = "";
 
-const dom = {
-  body          : document.querySelector("body"),
-  btAdd         : document.getElementById("add"),
-  btDeploy      : document.getElementById("deploy"),
-  btPageSettings: document.getElementById("ps"),
-  btShowHide    : document.getElementById("showHide"),
-  mainSwitch    : document.getElementById("mainSwitch"),
-  messages      : document.querySelector("messages"),
-  modal         : document.querySelector("dialog"),
-  modalClose    : document.getElementById("dialogClose"),
-  modalContent  : document.querySelector("dialog > form"),
-  modalTitle    : document.querySelector("dialog > h3"),
-  modalSave     : document.getElementById("dialogSave"),
-  panel         : document.querySelector("editor"),
-};
+window.onload = () => { createInterface(0) }
 
-window.onload = () => {
-  // refreshPagesList();
-  // getPage("/")
-  // dom.list.onchange = changePage;
-  // dom.save.onclick  = savePage;*
+function createInterface(step){
+  if (step === 0) fillInterface();
+  if (step === 1) findElementsInDom();
+  if (step === 2) return;
+  setTimeout(()=> createInterface(step+1), 100);
+}
+function findElementsInDom(){
+  dom.modal        = document.querySelector("dialog");
+  dom.modalContent = document.querySelector("dialog > form");
+  dom.modalTitle   = document.querySelector("dialog > h3");
+  dom.panel        = document.querySelector("editor");
 
   dom.body.setAttribute('data-active', 'false');
-
   document.querySelectorAll('[data-editor]').forEach(element => {
     element.addEventListener('click', (e) => {
       if (!isActive) return;
@@ -38,12 +33,7 @@ window.onload = () => {
     });
   });
 
-  updatePanelVisible( dom.messages !== null );
-
-  dom.mainSwitch.onchange = function () { updateBodyActive(this.checked); };
-  dom.btShowHide.onclick  = () => { updatePanelVisible(!isVisible); };
-  dom.modalClose.onclick = closeModal;
-  dom.modalSave.onclick  = saveNewData;
+  updatePanelVisible( messages.length> 0 );
 }
 
 async function openModal(editorValue) {
@@ -121,7 +111,6 @@ function extractData(editorValue) {
 function addField([entryName, { element, data }]) {
   function fill() {
     //TODO add enum, number
-    // const ref= element+entryName;
     switch (element) {
       case "string":
         return /*html*/`<label for="${entryName}">${entryName}${isOptional ? "" : "*"}</label><input type="text" id="${entryName}" name="${element}" value="${data ? data : ""}">`;
@@ -156,14 +145,15 @@ function useTinyMce(selector) {
   });
 }
 
-function saveNewData() {
+async function saveNewData() {
+  //TODO ajouter un système de chargement
   const {component, data, id} = extractData(usedEditor);
   const result = {
     component,
     data      : {},
     editorData: usedEditor,
     id,
-    page: new URL(document.URL).pathname
+    url: new URL(document.URL).pathname
   };
   for (const key of Object.keys(data)) {
     const value = data[key].element.startsWith("html")
@@ -175,5 +165,66 @@ function saveNewData() {
   console.log(result)
 
   //TODO envoyer requete pour envoyer les données
+  const newPageContent = await fetcherPost("/update-partial", result);
+
+  //TODO enlever le chargement
+  //TODO injecter les nouvelles données dans le dom
+
   closeModal();
+}
+
+async function fetcherGet(url) {
+  const rawdata = await fetch(url);
+  return await rawdata.json();
+}
+
+async function fetcherPost(url, data) {
+
+  const rawdata = await fetch(apiUrl+url, {
+    method: 'POST',
+    headers: {
+      'Accept'      : 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+  if (!rawdata.ok) throw new Error(rawdata.statusText);
+
+  const { content, editorData, pageData, messages } = rawdata;
+  console.log({ content, editorData, pageData, messages } )
+}
+
+async function getPagesList() {
+  return await fetcherGet(apiUrl+"getPages");
+}
+
+function fillInterface() {
+  dom.body.innerHTML +=/*html*/`
+<editor>
+  <h1>Yajsb Editor</h1>
+  <label class="toggle-switch">
+    <input type="checkbox" id="mainSwitch" onchange="updateBodyActive(this.checked)">
+    <span class="slider"></span>
+  </label>
+  <button id="showHide" onclick="updatePanelVisible(!isVisible)">hide</button>
+
+  ${listMessages()}
+  <button id="ps">Page Settings</button>
+  <button id="add">Add Page</button>
+  <button id="deploy">deploy</button>
+</editor>
+<dialog>
+  <h3></h3>
+  <button id="dialogClose" onclick="closeModal()">X</button>
+  <form method="dialog"></form>
+  <button autofocus type="reset" onclick="this.closest('dialog').close('cancel')">Cancel</button>
+  <button id="dialogSave" onclick="saveNewData()">Save</button>
+</dialog>
+  `;
+}
+
+function listMessages() {
+  return messages.length === 0
+    ? ""
+    : `<messages><ul>${messages.map((message) => `<li>${message}</li>`).join("\n")}</ul></messages>`;
 }

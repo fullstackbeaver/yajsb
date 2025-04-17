@@ -11,6 +11,7 @@
   "type": "module",
   "dependencies": {
     "chokidar": "^4.0.3",
+    "jsdom": "^26.1.0",
     "ls4bun": "github:fullstackbeaver/ls4bun",
     "zod": "^3.24.2"
   },

@@ -1,29 +1,30 @@
 {
   "pageSettings": {
-    "lang"        : "fr",
-    "title"       : "Le monde merveilleux de Lionel",
+    "lang": "fr",
+    "title": "Le monde merveilleux de Lionel",
     "creationDate": "2023-01-01",
-    "canonical"   : "https://lionel.fr"
+    "canonical": "https://lionel.fr",
+    "modificationDate": "2025-04-17T21:03:47.863Z"
   },
   "head": {
     "metaDescription": "Le monde merveilleux de Lionel",
-    "image"          : "https://lionel.fr/assets/og.jpg",
-    "pageType"       : "website"
+    "image": "https://lionel.fr/assets/og.jpg",
+    "pageType": "website"
   },
   "hero": {
-    "content": "<h1>Le monde merveilleux de Lionel</h1>",
+    "content": "Le monde merveilleux de Lionel 🙂",
     "image": "/banner.jpg"
   },
   "nav": {
     "mainNav": {
       "l1": {
-        "url"      : "http://google.fr",
-        "text"     : "google",
+        "url": "http://google.fr",
+        "text": "google",
         "ariaLabel": "visiter le site de google"
       },
       "l2": {
-        "url"      : "http://fft.fr",
-        "text"     : "fédération française de tennis",
+        "url": "http://fft.fr",
+        "text": "fédération française de tennis",
         "ariaLabel": "visiter le site de fédération française de tennis"
       }
     }
