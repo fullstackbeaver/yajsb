@@ -33,9 +33,11 @@ export function useWatcher(pathsToWatch: string[], extensions: string[], folders
 
   function extractExtensionOrFolder(event: EVENT, filePath: string) {
 
-    return (event === EVENT.ADD_DIR || event === EVENT.UNLINK_DIR)
-      ? extractFolder(filePath)
-      : extractExtension(filePath);
+    // return (event === EVENT.ADD_DIR || event === EVENT.UNLINK_DIR)
+    //   ? extractFolder(filePath)
+    //   : extractExtension(filePath);
+
+    return extractExtension(filePath);
   }
 
   for (const event of Object.values(EVENT)) {

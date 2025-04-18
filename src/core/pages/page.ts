@@ -1,11 +1,11 @@
-import type { DataEntries, PageData, PartitalPageUpdateArgs }               from './pages.types';
-import      { dataExtension, projectRoot, sharedIndex, sharedKey, srcPath } from "../constants";
-import      { readJsonFile, writeJson }                                     from "@adapters/files/files";
-import      { JSDOM }                                                       from 'jsdom';
-import      { extractFromUrl }                                              from './url';
-import      { loadComponentsInformation }                                   from '../components/component';
-import      { merge }                                                       from '@core/utils';
-import      { sanitizeInput }                                               from 'ls4bun';
+import type { DataEntries, PageData, PartitalPageUpdateArgs }      from './pages.types';
+import      { dataExtension, projectRoot, sharedIndex, sharedKey } from "../constants";
+import      { readJsonFile, writeJson }                            from "@adapters/files/files";
+import      { JSDOM }                                              from 'jsdom';
+import      { extractFromUrl }                                     from './url';
+import      { loadComponentsInformation }                          from '../components/component';
+import      { merge }                                              from '@core/utils';
+import      { sanitizeInput }                                      from 'ls4bun';
 
 const messages     = [] as string[];
 let   editorData   = {} as any;       //TODO remettre le bon typage
@@ -22,8 +22,8 @@ let   usedPageData = {} as any;       // les données complétées par les schem
  * if in editor mode). Finally, it renders the template and returns the rendered
  * content alongside any listeners.
  *
- * @param url      - The URL of the page to render.
- * @param isEditor - A boolean indicating whether the page is being rendered in
+ * @param {string}  url      - The URL of the page to render.
+ * @param {Boolean} isEditor - A boolean indicating whether the page is being rendered in
  *                   editor mode, which applies additional data transformations.
  *
  * @returns An object containing the rendered content and a map of listeners.
@@ -31,7 +31,7 @@ let   usedPageData = {} as any;       // les données complétées par les schem
 export async function renderPage(url: string, isEditor: boolean) {
 
   messages.length = 0;
-  await loadComponentsInformation(srcPath);
+  await loadComponentsInformation();
 
   const { templateToLoad, dataToLoad } = await extractFromUrl(url);
 

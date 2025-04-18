@@ -8,7 +8,8 @@ import { writeFile } from 'node:fs';
 
 export type TemplateFolder = {
   data      : string[]
-  templates : string[]
+  templates : string[],
+  styles    : string[],
   folders  ?: {
     [key: string]: TemplateFolder
   };
@@ -33,7 +34,8 @@ export async function getFolderContentRecursive( path: string | string[], folder
 
   const current: TemplateFolder = {
     data     : [],
-    templates: []
+    templates: [],
+    styles   : [],
   };
 
   for (const file of files) {
@@ -52,6 +54,10 @@ export async function getFolderContentRecursive( path: string | string[], folder
 
     if (fileName.endsWith(dataExtension)) {
       current.data.push(fileName.slice(0, -dataExtension.length));
+    }
+
+    if (fileName.endsWith("scss")) {
+      current.styles.push(fileName.slice(0, -dataExtension.length));
     }
   }
 

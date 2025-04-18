@@ -1,10 +1,10 @@
 import type { ComponentMainData, ComponentRenderData, Components, DescribeCpnArgs }                                 from "./component.types";
 import      { addEditorData, addMessage, addPageData, getComponentDataFromPageData, getPageSettings, isEditorMode } from "@core/pages/page";
+import      { componentFolder, projectRoot, tsExtension }                                                           from "@core/constants";
 import      { getDefaultData, getSchemaKeys }                                                                       from "@adapters/zod/zod";
+import type { Component }                                                                                           from "@site";
 import      DOMPurify                                                                                               from 'isomorphic-dompurify';
 import      { getFolderContent }                                                                                    from "@adapters/files/files";
-import      { tsExtension }                                                                                         from "@core/constants";
-import type { Component } from "@site";
 
 const components       = {} as Components;
 const singleComponents = [] as string[];
@@ -28,17 +28,15 @@ const useComponentCtx = {
  *
  * @returns {Promise<void>}
  */
-export async function loadComponentsInformation(src: string[]) {
+export async function loadComponentsInformation() {
 
   if (Object.keys(components).length > 0) return;
 
-  for (const endPath of src) {
-    const path          = process.cwd() + endPath;
-    const files         = await getFolderContent(path);
-    const filteredFiles = files.filter(file => !file.endsWith(tsExtension));
-    for (const file of filteredFiles) {
-      components[file] = await createComponent(path, file);
-    }
+  const path          = projectRoot+componentFolder;
+  const files         = await getFolderContent(path);
+  const filteredFiles = files.filter(file => !file.endsWith(tsExtension)); //only folders name
+  for (const file of filteredFiles) {
+    components[file] = await createComponent(path, file);
   }
 }
 
@@ -112,11 +110,12 @@ export function useComponent(componentName:keyof Components, id?:string, context
  * @param {string}    path         - The path to the component folder.
  * @param {string}   componentName - The name of the component.
  * @param {string[]} [SglCompCtx]  - The list of single components to update.It is defined by default and should be modified only during tests
+ * @param {string}   [extension]   - The file extension of the components to update.It is defined by default and should be modified only during tests
  *
  * @returns {Promise<ComponentMainData>} - The component.
  */
-async function createComponent(path: string, componentName:string, SglCompCtx:string[] = singleComponents): Promise<ComponentMainData> {
-  const { description, isSingle, schema, template } = await import(`${path}/${componentName}/${componentName}${tsExtension}`);
+async function createComponent(path: string, componentName:string, SglCompCtx:string[] = singleComponents, extension:string = tsExtension): Promise<ComponentMainData> {
+  const { description, isSingle, schema, template } = await import(`${path}/${componentName}/${componentName}${extension}`);
   isSingle === true && SglCompCtx.push(componentName);
 
   return { description, schema, template }

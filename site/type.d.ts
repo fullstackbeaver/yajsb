@@ -1,3 +1,4 @@
+// do not change this file, auto generated
 import {PageSettings} from "./components/pageSettings/pageSettings";
 import {HtmlWithLang} from "./components/htmlWithLang/htmlWithLang";
 import {Nav} from "./components/nav/nav";
@@ -16,5 +17,4 @@ link:Link
 head:Head
 
 }
-
-export type Component = "PageSettings" | "HtmlWithLang" | "Nav" | "Hero" | "Footer" | "Link" | "Head";
+export type Component = "pageSettings" | "htmlWithLang" | "nav" | "hero" | "footer" | "link" | "head";

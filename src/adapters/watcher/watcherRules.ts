@@ -1,5 +1,6 @@
 import { EVENT, EXTENSIONS, FOLDERS } from "./watcher.constants";
 import { useWatcher }                 from "./watcher";
+import { makeCss } from "@scripts/makeCss";
 
 export function runWatcher(){
   useWatcher(
@@ -7,27 +8,23 @@ export function runWatcher(){
     Object.values(EXTENSIONS),
     Object.values(FOLDERS),
     {
-      [EVENT.ADD]: {
-        [EXTENSIONS.SCSS]: addScssFile
-      },
-      [EVENT.ADD_DIR]: {
-        [FOLDERS.COMPONENTS]: () => { },
-        [FOLDERS.PAGES]: () => { }
-      },
+      // [EVENT.ADD]: {
+      //   [EXTENSIONS.SCSS]: () => { }
+      // },
+      // [EVENT.ADD_DIR]: {
+      //   [FOLDERS.COMPONENTS]: () => { },
+      //   [FOLDERS.PAGES]: () => { }
+      // },
       [EVENT.CHANGE]: {
-        [EXTENSIONS.SCSS]: () => { }
+        [EXTENSIONS.SCSS]: makeCss
       },
-      [EVENT.UNLINK]: {
-        [EXTENSIONS.SCSS]: () => { }
-      },
-      [EVENT.UNLINK_DIR]: {
-        [FOLDERS.COMPONENTS]: () => { },
-        [FOLDERS.PAGES]: () => { }
-      }
+      // [EVENT.UNLINK]: {
+      //   [EXTENSIONS.SCSS]: () => { }
+      // },
+      // [EVENT.UNLINK_DIR]: {
+      //   [FOLDERS.COMPONENTS]: () => { },
+      //   [FOLDERS.PAGES]: () => { }
+      // }
     }
   );
-}
-
-function addScssFile(filePath: string) {
-  console.log(`Change detected in the file : ${filePath}`);
 }

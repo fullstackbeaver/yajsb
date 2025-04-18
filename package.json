@@ -14,10 +14,12 @@
     "chokidar": "^4.0.3",
     "jsdom": "^26.1.0",
     "ls4bun": "github:fullstackbeaver/ls4bun",
+    "sass": "^1.86.3",
     "zod": "^3.24.2"
   },
   "scripts": {
     "start": "bun --watch run index.ts",
-    "updateComponentsList": "bun run scripts/updateComponentsList.ts"
+    "updateComponentsList": "bun run scripts/updateComponentsList.ts types",
+    "updateComponentsScssList": "bun run scripts/updateComponentsList.ts scss"
   }
 }
