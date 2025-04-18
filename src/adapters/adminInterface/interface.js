@@ -4,13 +4,14 @@ const dom           = {
 };
 const useHtmlEditor = [];
 
-let   isActive      = false;
-let   isVisible     = false;
-let   usedEditor    = "";
+let isActive      = false;
+let isTransparent = false;
+let usedEditor    = "";
 
-window.onload = () => { createInterface(0) }
+dom.body.setAttribute('data-active', 'false');
+window.onload = () => { createInterface() }
 
-function createInterface(step){
+function createInterface(step=0){
   if (step === 0) fillInterface();
   if (step === 1) findElementsInDom();
   if (step === 2) return;
@@ -22,7 +23,6 @@ function findElementsInDom(){
   dom.modalTitle   = document.querySelector("dialog > h3");
   dom.panel        = document.querySelector("editor");
 
-  dom.body.setAttribute('data-active', 'false');
   document.querySelectorAll('[data-editor]').forEach(element => {
     element.addEventListener('click', (e) => {
       if (!isActive) return;
@@ -60,7 +60,8 @@ function updateBodyActive(newState) {
 };
 
 function updatePanelVisible(newState) {
-  isVisible = newState;
+  isTransparent = newState;
+  console.log("updatePanelVisible", isTransparent, newState);
   dom.panel.setAttribute('data-visible', newState);
 };
 
@@ -84,6 +85,7 @@ function extractData(editorValue) {
   }
 
   const data     = getDataFromPageData();
+  console.log(editorData)
   const elements = editor
     ? editorData[component][editor]
     : editorData[component];
@@ -138,9 +140,9 @@ function addField([entryName, { element, data }]) {
 function useTinyMce(selector) {
   tinymce.init({
     selector,
-    height: '700px',
-    toolbar_sticky: true,
-    icons: 'thin',
+    height                     : '700px',
+    toolbar_sticky             : true,
+    icons                      : 'thin',
     autosave_restore_when_empty: true
   });
 }
@@ -162,15 +164,15 @@ async function saveNewData() {
     if (value !== "" && !data[key].element.endsWith('?')) result.data[key] = value;
   }
 
-  console.log(result)
+  dom.modal.innerHTML = "saving...";
 
-  //TODO envoyer requete pour envoyer les données
-  const newPageContent = await fetcherPost("/update-partial", result);
+  const newData = await fetcherPost("/update-partial", result);
 
-  //TODO enlever le chargement
-  //TODO injecter les nouvelles données dans le dom
-
-  closeModal();
+  dom.body.innerHTML = newData.content;
+  pageData           = newData.pageData;
+  messages           = newData.messages;
+  // closeModal();
+  setTimeout(createInterface, 100);
 }
 
 async function fetcherGet(url) {
@@ -190,8 +192,7 @@ async function fetcherPost(url, data) {
   });
   if (!rawdata.ok) throw new Error(rawdata.statusText);
 
-  const { content, editorData, pageData, messages } = rawdata;
-  console.log({ content, editorData, pageData, messages } )
+  return await rawdata.json();
 }
 
 async function getPagesList() {
@@ -203,10 +204,10 @@ function fillInterface() {
 <editor>
   <h1>Yajsb Editor</h1>
   <label class="toggle-switch">
-    <input type="checkbox" id="mainSwitch" onchange="updateBodyActive(this.checked)">
+    <input type="checkbox" id="mainSwitch" onchange="updateBodyActive(this.checked)"${isActive ? " checked" : ""}>
     <span class="slider"></span>
   </label>
-  <button id="showHide" onclick="updatePanelVisible(!isVisible)">hide</button>
+  <button id="showHide" onclick="updatePanelVisible(!isTransparent)">hide</button>
 
   ${listMessages()}
   <button id="ps">Page Settings</button>

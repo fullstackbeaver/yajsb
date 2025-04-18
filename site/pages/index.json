@@ -4,7 +4,7 @@
     "title": "Le monde merveilleux de Lionel",
     "creationDate": "2023-01-01",
     "canonical": "https://lionel.fr",
-    "modificationDate": "2025-04-17T21:03:47.863Z"
+    "modificationDate": "2025-04-18T06:47:04.905Z"
   },
   "head": {
     "metaDescription": "Le monde merveilleux de Lionel",
@@ -18,14 +18,12 @@
   "nav": {
     "mainNav": {
       "l1": {
-        "url": "http://google.fr",
-        "text": "google",
-        "ariaLabel": "visiter le site de google"
+        "url": "http://fft.fr",
+        "text": "fédération française de tennis"
       },
       "l2": {
         "url": "http://fft.fr",
-        "text": "fédération française de tennis",
-        "ariaLabel": "visiter le site de fédération française de tennis"
+        "text": "fédération française de tennis"
       }
     }
   }

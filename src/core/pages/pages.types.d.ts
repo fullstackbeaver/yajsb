@@ -1,7 +1,5 @@
-import type { Component } from "@site";
-
 export type PageData = {
-  [component in Component]:DataEntries | Record<string,DataEntries>
+  [component:string]:DataEntries | Record<string,DataEntries>
 }
 
 export type DataEntries = {

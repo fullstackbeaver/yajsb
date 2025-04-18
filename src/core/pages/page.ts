@@ -4,8 +4,8 @@ import      { readJsonFile, writeJson }                                     from
 import      { JSDOM }                                                       from 'jsdom';
 import      { extractFromUrl }                                              from './url';
 import      { loadComponentsInformation }                                   from '../components/component';
+import      { merge }                                                       from '@core/utils';
 import      { sanitizeInput }                                               from 'ls4bun';
-// import type { PageData }                                                              from '@site';
 
 const messages     = [] as string[];
 let   editorData   = {} as any;       //TODO remettre le bon typage
@@ -135,9 +135,14 @@ export function getPageSettings(){
 export async function partialPageUpdate( { component, data, editorData, id, url }:PartitalPageUpdateArgs ){
 
   function reformatComponentData() {
-    if (component === editorData) return { [component]: sanitizeInput(data) };
-    if (id === undefined) return { [component]: { [editorData]: sanitizeInput(data) } };
-    return { [component]: { [id]: { [editorData]: sanitizeInput(data) } } };
+    if (component === editorData)
+      return { [component]: sanitizeInput(data) };
+
+    const [_component, editor, id] = editorData.split(".") as [string, string, string | undefined];
+
+    return id === undefined
+      ? { [component]: { [editor]: sanitizeInput(data) } }
+      : { [component]: { [id]: { [editor]: sanitizeInput(data) } } };
   }
 
   const { dataToLoad, templateToLoad } = await extractFromUrl(url);
@@ -146,20 +151,17 @@ export async function partialPageUpdate( { component, data, editorData, id, url 
     ? await loadSharedData()
     : await loadPagesData(dataToLoad);
 
-  const newData = {
-    ...originalData,
-    ...reformatComponentData()
-  };
+  const newData = merge(originalData, reformatComponentData());
 
   if (!isShared) {
-    (newData as any).pageSettings.modificationDate = new Date().toISOString();//TODO remove any
+    newData.pageSettings.modificationDate = new Date().toISOString();//TODO remove any
   }
 
   //save
-  await writeJson(dataToLoad, newData);
+  await writeJson(dataToLoad, newData); 
 
   //new render
-  pageData = newData;
+  pageData =  merge(pageData, newData); //merge for adding others data (shared or page data)
   messages.length = 0;
   const { template } = await import(templateToLoad) as { template: Function };
 
@@ -169,7 +171,6 @@ export async function partialPageUpdate( { component, data, editorData, id, url 
 
   return {
     content: minifyRenderedContent(content),
-    editorData,
     pageData,
     messages
   }

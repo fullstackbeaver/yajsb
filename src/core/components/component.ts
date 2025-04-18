@@ -67,7 +67,6 @@ export function useComponent(componentName:keyof Components, id?:string, context
   const { addMmsg, addPageData, components, dataFromPage, render, sendError } = context;
 
   const editorMode                        = isEditorMode();
-  console.log("componentName", componentName, components);
   const { description, schema, template } = components[componentName];  //TODO use description
 
   let   data = dataFromPage(componentName as Component, id);

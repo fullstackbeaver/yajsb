@@ -2,7 +2,8 @@
   "name": "site-generator",
   "module": "index.ts",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/jsdom": "^21.1.7"
   },
   "peerDependencies": {
     "typescript": "^5"
