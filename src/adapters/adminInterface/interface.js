@@ -61,7 +61,6 @@ function updateBodyActive(newState) {
 
 function updatePanelVisible(newState) {
   isTransparent = newState;
-  console.log("updatePanelVisible", isTransparent, newState);
   dom.panel.setAttribute('data-visible', newState);
 };
 
@@ -85,7 +84,6 @@ function extractData(editorValue) {
   }
 
   const data     = getDataFromPageData();
-  console.log(editorData)
   const elements = editor
     ? editorData[component][editor]
     : editorData[component];
@@ -171,7 +169,6 @@ async function saveNewData() {
   dom.body.innerHTML = newData.content;
   pageData           = newData.pageData;
   messages           = newData.messages;
-  // closeModal();
   setTimeout(createInterface, 100);
 }
 
