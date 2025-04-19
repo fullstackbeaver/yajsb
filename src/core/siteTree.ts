@@ -1,19 +1,41 @@
 import type { TemplateFolder} from "@adapters/files/files";
 
-import { basePage, index }           from "./constants";
-import { getFolderContentRecursive } from "@adapters/files/files";
+import { index, pageFolder, projectRoot } from "./constants";
+import { getFolderContentRecursive }      from "@adapters/files/files";
+
+let fileTree: string[] = [];
 
 /**
- * Gets the site tree (all existing page locations) from the filesystem.
+ * Updates the global file tree by recursively fetching folder content from the base page
+ * and generates an array of paths. It resets the existing file tree before updating.
  *
- * @param {boolean} [withAddLocation] If true, will add a location path with a '+' at the end,
- *                                    indicating that user can create a page here.
- *
- * @returns An array of paths that are existing page locations.
+ * @returns {Promise<void>} A promise that Updates the global file tree when resolved.
  */
-export async function getFileTree(withAddLocation = false): Promise<string[]> {
-  return getGeneratedPaths(await getFolderContentRecursive(basePage), withAddLocation)
-    .map(path => path.slice("/pages".length));
+export async function updateFileTree(): Promise<void> {
+  fileTree.length = 0;
+  fileTree = getGeneratedPaths(await getFolderContentRecursive(projectRoot+pageFolder), true)
+    .map(path => path.slice(pageFolder.length));
+
+  if (fileTree[0] === "") fileTree[0] = "/";
+}
+
+/**
+ * Returns a filtered array of paths based on the given options.
+ *
+ * @param {boolean}  includeAddLocation If true, will include paths where we could add a new page
+ * @param {boolean}  includeUnpublished If true, will include paths that are not yet published
+ * @param {string[]} [refs]             The array of paths to filter
+ *
+ * @returns {string[]} The filtered array of paths
+ */
+export function getFileTree(includeAddLocation: boolean, includeUnpublished: boolean, refs=fileTree): string[] {
+  return refs.filter((path) => {
+    const lastElement = path.split("/").pop();
+
+    if (!includeAddLocation && path.endsWith("+"))           return false;
+    if (!includeUnpublished && lastElement?.startsWith("_")) return false;
+    return true;
+  });
 }
 
 /**

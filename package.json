@@ -2,7 +2,8 @@
   "name": "site-generator",
   "module": "index.ts",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/jsdom": "^21.1.7"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -10,11 +11,15 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "chokidar": "^4.0.3",
+    "jsdom": "^26.1.0",
     "ls4bun": "github:fullstackbeaver/ls4bun",
+    "sass": "^1.86.3",
     "zod": "^3.24.2"
   },
   "scripts": {
-    "start": "bun run index.ts",
-    "updateComponentsList": "bun run scripts/updateComponentsList.ts"
+    "start": "bun --watch run index.ts",
+    "updateComponentsList": "bun run scripts/updateComponentsList.ts types",
+    "updateComponentsScssList": "bun run scripts/updateComponentsList.ts scss"
   }
 }

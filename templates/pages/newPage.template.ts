@@ -9,9 +9,6 @@ ${useComponent("head")}
 </head>
 
 <body>
-${useComponent("nav", "mainNav")}
-${useComponent("hero")}
-${useComponent("footer")}
 </body>
 </html>`;
 }

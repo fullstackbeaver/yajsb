@@ -1,13 +1,15 @@
 /* file handler specific for bun */
 
-import { join }    from 'path';
-import { readdir } from "node:fs/promises";
-
 import { dataExtension, templateExtension } from '@core/constants';
+import { mkdir, readdir }                   from "node:fs/promises";
+import { join }                             from 'path';
+// import { writeFile } from 'node:fs';
+
 
 export type TemplateFolder = {
   data      : string[]
-  templates : string[]
+  templates : string[],
+  styles    : string[],
   folders  ?: {
     [key: string]: TemplateFolder
   };
@@ -19,7 +21,7 @@ export function getFolderContent(path: string | string[]) :Promise<string[]> {
 }
 
 export function writeToFile(path: string, data: string) {
-  return Bun.write(path, data);
+  return Bun.write( path, data );
 }
 
 export function readJsonFile(path: string) {
@@ -32,7 +34,8 @@ export async function getFolderContentRecursive( path: string | string[], folder
 
   const current: TemplateFolder = {
     data     : [],
-    templates: []
+    templates: [],
+    styles   : [],
   };
 
   for (const file of files) {
@@ -52,6 +55,10 @@ export async function getFolderContentRecursive( path: string | string[], folder
     if (fileName.endsWith(dataExtension)) {
       current.data.push(fileName.slice(0, -dataExtension.length));
     }
+
+    if (fileName.endsWith("scss")) {
+      current.styles.push(fileName.slice(0, -dataExtension.length));
+    }
   }
 
   const name = folderName ?? path.split(/[\\/]/).pop()!; // si pas de nom, on extrait le dernier segment du chemin
@@ -59,4 +66,17 @@ export async function getFolderContentRecursive( path: string | string[], folder
     [name]: current,
   };
 
+}
+
+export function writeJson(path: string, data: any) {
+  writeToFile(path, JSON.stringify(data, null, 2));
+}
+
+export async function readFileAsString(path: string) {
+  return await Bun.file(path).text();
+}
+
+
+export async function createDirectory(path: string) {
+  await mkdir(path, { recursive: false });
 }

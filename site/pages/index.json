@@ -1,28 +1,30 @@
 {
-  "global" : {
-    "lang" : "fr",
-    "title" : "Le monde merveilleux de Lionel",
-    "creationDate" : "2023-01-01"
+  "pageSettings": {
+    "lang": "fr",
+    "title": "Le monde merveilleux de Lionel",
+    "creationDate": "2023-01-01",
+    "canonical": "https://lionel.fr",
+    "modificationDate": "2025-04-18T06:47:04.905Z"
   },
-  "header" : {
-    "pageHeader" : {
-      "metaDescription" : "Le monde merveilleux de Lionel",
-      "image"           : "https://beranger.fr/assets/og.jpg",
-      "pageType"        : "website"
-    }
+  "head": {
+    "metaDescription": "Le monde merveilleux de Lionel",
+    "image": "https://lionel.fr/assets/og.jpg",
+    "pageType": "website"
   },
-  "nav" : {
-    "mainNav" : {
-      "items" : [
-        {
-          "label" : "Accueil",
-          "link"  : "/"
-        },
-        {
-          "label" : "A propos",
-          "link"  : "/a-propos"
-        }
-      ]
+  "hero": {
+    "content": "Le monde merveilleux de Lionel 🙂",
+    "image": "/banner.jpg"
+  },
+  "nav": {
+    "mainNav": {
+      "l1": {
+        "url": "http://fft.fr",
+        "text": "fédération française de tennis"
+      },
+      "l2": {
+        "url": "http://fft.fr",
+        "text": "fédération française de tennis"
+      }
     }
   }
 }

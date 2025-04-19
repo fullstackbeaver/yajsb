@@ -1,8 +1,9 @@
 {
-  "footer": {
-    "shared_footer": {
-      "fghjkl": "hjikl",
-      "fghjkl2": "hjikl2"
+  "link": {
+    "shared_link1": {
+      "url":"https://google.com",
+      "text":"Visit Google",
+      "aria-label":"Search engine"
     }
   }
 }

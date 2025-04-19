@@ -32,6 +32,9 @@
       "@core/*"          : ["./src/core/*"],
       "@coreComponents/*": ["./src/core/components/*"],
       "@pages/*"         : ["./site/pages/*"],
+      "@scripts/*"       : ["./scripts/*"],
+      "@site"            : ["./site/type.d.ts"],
+      "@yajsb"           : ["./src/index.ts"]
     }
   }
 }
