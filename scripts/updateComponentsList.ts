@@ -109,7 +109,7 @@ export async function add(type:"page"|"component", name:string, multiple:Compone
       case file.endsWith(tsExtension):
         if (type === component) {
           const multipleNb         = parseInt(multiple);
-          const { schema, example} = getSchemaAndExample(multiple as ComponentData);
+          const { schema, example} = getSchemaAndExample(multiple);
 
           writeToFile(target + tsExtension, content
             .replace("§multiple§",        multipleNb < 3 ? "true"  : "false")

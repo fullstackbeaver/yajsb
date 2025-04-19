@@ -41,7 +41,7 @@ async function openModal(editorValue) {
   const {component, data, id} = extractData(editorValue);
   usedEditor                  = editorValue;
   useHtmlEditor.length        = 0;
-  dom.modalTitle.innerText    = component;
+  dom.modalTitle.innerText    = component+(id ? " #"+id : "");
   dom.modalContent.innerHTML  = Object.entries(data)
     .map(addField)
     .join("");
@@ -110,7 +110,6 @@ function extractData(editorValue) {
 
 function addField([entryName, { element, data }]) {
   function fill() {
-    //TODO add enum, number
     switch (element) {
       case "string":
         return /*html*/`<label for="${entryName}">${entryName}${isOptional ? "" : "*"}</label><input type="text" id="${entryName}" name="${element}" value="${data ? data : ""}">`;
@@ -222,7 +221,11 @@ function fillInterface() {
 }
 
 function listMessages() {
-  return messages.length === 0
-    ? ""
-    : `<messages><ul>${messages.map((message) => `<li>${message}</li>`).join("\n")}</ul></messages>`;
+  if (messages.length === 0) return "";
+
+  const listItems = messages.map(function(message) {
+    return "<li>" + message + "</li>";
+  }).join("\n");
+
+  return "<messages><ul>" + listItems + "</ul></messages>";
 }

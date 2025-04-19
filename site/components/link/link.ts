@@ -1,6 +1,5 @@
-import type { PageData }          from "@site";
-import      { describeComponent } from "@core/components/component";
-import      { z }                 from "zod";
+import type { PageData } from "@site";
+import      { z }        from "zod";
 
 export const description = "link description";
 
