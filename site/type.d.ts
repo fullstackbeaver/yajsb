@@ -1,4 +1,5 @@
 // do not change this file, auto generated
+import {Ertyuio} from "./components/ertyuio/ertyuio";
 import {PageSettings} from "./components/pageSettings/pageSettings";
 import {HtmlWithLang} from "./components/htmlWithLang/htmlWithLang";
 import {Nav} from "./components/nav/nav";
@@ -8,6 +9,7 @@ import {Link} from "./components/link/link";
 import {Head} from "./components/head/head";
 
 export type PageData = {
+ertyuio:Ertyuio
 pageSettings:PageSettings
 htmlWithLang:HtmlWithLang
 nav:Nav
@@ -17,4 +19,4 @@ link:Link
 head:Head
 
 }
-export type Component = "pageSettings" | "htmlWithLang" | "nav" | "hero" | "footer" | "link" | "head";
+export type Component = "ertyuio" | "pageSettings" | "htmlWithLang" | "nav" | "hero" | "footer" | "link" | "head";

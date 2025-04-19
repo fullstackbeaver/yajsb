@@ -1,10 +1,10 @@
 /* file handler specific for bun */
 
-import { join }    from 'path';
-import { readdir } from "node:fs/promises";
-
 import { dataExtension, templateExtension } from '@core/constants';
-import { writeFile } from 'node:fs';
+import { mkdir, readdir }                   from "node:fs/promises";
+import { join }                             from 'path';
+// import { writeFile } from 'node:fs';
+
 
 export type TemplateFolder = {
   data      : string[]
@@ -70,4 +70,13 @@ export async function getFolderContentRecursive( path: string | string[], folder
 
 export function writeJson(path: string, data: any) {
   writeToFile(path, JSON.stringify(data, null, 2));
+}
+
+export async function readFileAsString(path: string) {
+  return await Bun.file(path).text();
+}
+
+
+export async function createDirectory(path: string) {
+  await mkdir(path, { recursive: false });
 }

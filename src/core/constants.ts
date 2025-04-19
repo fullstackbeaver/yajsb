@@ -10,4 +10,5 @@ export const tsExtension       = ".ts";
 //composed values
 export const projectRoot       = process.cwd()+"/site";
 export const sharedIndex       = sharedKey+"_";
+export const templateFolder    = process.cwd()+"/templates";
 export const templateExtension = ".template"+tsExtension;

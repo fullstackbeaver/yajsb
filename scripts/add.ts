@@ -1,26 +1,54 @@
-import { add } from "./updateComponentsList";
+import { add, type ComponentData } from "./updateComponentsList";
 
   // colors
 const GREEN = '\x1b[32m';
 const NC    = '\x1b[0m';   // No Color
 
   // Fonction pour poser une question avec un choix et une valeur par défaut
-async function askChoice(prompt: string, defaultChoice: string): Promise<string> {
+async function askChoice(prompt: string, defaultChoice: number): Promise<number> {
   console.log(`${GREEN}${prompt}${NC}`);
-  console.log("(1) Yes");
-  console.log("(2) No");
-  const choice = await readInput(`Select an option (default is ${defaultChoice}): `);
+  console.log("(1) Yes", defaultChoice === 1 ? "(default)" : "");
+  console.log("(2) No", defaultChoice === 2 ? "(default)" : "");
+  const choice = await readInput("Select an option");
 
   if (choice === "") {
     return defaultChoice;
   } else if (choice === "1") {
-    return "Yes";
+    return 1;
   } else if (choice === "2") {
-    return "No";
+    return 2;
   } else {
     console.log(`Invalid choice, defaulting to ${defaultChoice}`);
     return defaultChoice;
   }
+}
+
+async function askComponentData(prompt: string, defaultChoice: number = 1): Promise<number> {
+  console.log(`${GREEN}${prompt}${NC}`);
+  console.log("(0) No data",                                defaultChoice === 0 ? "(default)" : "");
+  console.log("(1) 1 per page and only 1 editor",           defaultChoice === 1 ? "(default)" : "");
+  console.log("(2) 1 per page and multiple editors",        defaultChoice === 2 ? "(default)" : "");
+  console.log("(3) Multiple per page and only 1 editor",    defaultChoice === 3 ? "(default)" : "");
+  console.log("(4) Multiple per page and multiple editors", defaultChoice === 4 ? "(default)" : "");
+
+  const choice = await readInput(`Select an option: `);
+
+  const validChoices = {
+    "0": "No data",
+    "1": "1 per page and only 1 editor",
+    "2": "1 per page and multiple editors",
+    "3": "Multiple per page and only 1 editor",
+    "4": "Multiple per page and multiple editors"
+  };
+
+  if (choice === "") {
+    return defaultChoice;
+  }
+  const choiceInt = parseInt(choice);
+  if (choiceInt >=0 && choiceInt <= 4) return choiceInt;
+
+  console.log(`Invalid choice, defaulting to ${(validChoices as any)[defaultChoice.toString()]}`);
+  return  defaultChoice;
 }
 
   // Fonction pour lire une saisie obligatoire
@@ -59,39 +87,32 @@ async function main() {
 
   let type     : "component" | "page";
   let name     : string;
-  let subOption: boolean;
+  let subOption: number;
 
   if (mainChoice === "" || mainChoice === "1") {
     type = "page";
     console.log("You chose: Page\n");
 
-      // Demander le nom de la page
     console.log(`${GREEN}Enter the name of the page:${NC}`);
     name = await readNonEmpty("");
 
-      // Demander s'il y a des sous-pages
     console.log(`${GREEN}Now, let's check if this page will have subpages.${NC}`);
-    const subChoice = await askChoice("Will there be subpages?", "Yes");
-          subOption = subChoice === "Yes";
+    subOption = await askChoice("Will there be subpages?", 1);
 
   } else if (mainChoice === "2") {
     type = "component";
     console.log("You chose: Component\n");
 
-      // Demander le nom du composant
     console.log(`${GREEN}Enter the name of the component:${NC}`);
     name = await readNonEmpty("");
 
-      // Demander s'il y a plusieurs itérations du composant
     console.log(`${GREEN}Now, let's check if this component will have multiple iterations on the same page.${NC}`);
-    const iterChoice = await askChoice("Will there be multiple iterations of this component on the same page?", "Yes");
-          subOption  = iterChoice === "Yes";
-
+    subOption = await askComponentData("How will be the component data ?");
   } else {
-    console.log("Invalid option. Please run the script again and choose 1 or 2.");
+    console.log("Invalid option. Please run the script again and choose a number between 0 and 4.");
     process.exit(1);
   }
-  await add(type, name, subOption);
+  await add(type, name, subOption.toString() as ComponentData);
   process.exit(0);
 }
 
