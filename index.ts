@@ -1,6 +1,6 @@
-import { runServer }  from "@adapters/server/server";
+import { runServer }      from "@adapters/server/server";
+import { runWatcher }     from "@adapters/watcher/watcherRules";
 import { updateFileTree } from "@core/siteTree";
-import { runWatcher } from "@adapters/watcher/watcherRules";
 
 runServer();
 updateFileTree();

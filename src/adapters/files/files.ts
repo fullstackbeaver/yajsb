@@ -3,7 +3,6 @@
 import { dataExtension, templateExtension } from '@core/constants';
 import { mkdir, readdir }                   from "node:fs/promises";
 import { join }                             from 'path';
-// import { writeFile } from 'node:fs';
 
 
 export type TemplateFolder = {
@@ -43,7 +42,8 @@ export async function getFolderContentRecursive( path: string | string[], folder
 
     if (file.isDirectory()) {
       const subfolder = await getFolderContentRecursive(join(path, fileName), fileName);
-      (current.folders ??= {})[fileName] = subfolder[fileName];
+      if (current.folders == null) current.folders = {};
+      current.folders[fileName] = subfolder[fileName];
       continue;
     }
 

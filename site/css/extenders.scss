@@ -1,7 +1,5 @@
 .selfCentered {
   display: flex;
-      // place-items: center;
-      // place-content: center;
   align-self  : center;
   justify-self: center;
 }
@@ -13,13 +11,6 @@
   background-position: left bottom;
   background-repeat  : no-repeat;
 }
-
-  // .iconBeforeOrAfterBgCenter {
-  //   background-position: center;
-  //   background-repeat  : no-repeat;
-  //   background-size    : 30% auto;
-  //   display            : block;
-  // }
 
 
 .noBullet {
