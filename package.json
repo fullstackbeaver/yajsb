@@ -1,6 +1,8 @@
 {
-  "name": "site-generator",
-  "module": "index.ts",
+  "name": "yajsb",
+  "module": "src/index.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "devDependencies": {
     "@types/bun": "latest",
     "@types/jsdom": "^21.1.7"
@@ -18,7 +20,8 @@
     "zod": "^3.24.2"
   },
   "scripts": {
-    "start": "bun --watch run index.ts",
+    "build": "rm -r ./lib && bun build ./src/index.ts --outdir ./lib --minify --target bun --external chokidar --external jsdom --external sass --external zod",
+    "start": "bun --watch run src/index.ts",
     "updateComponentsList": "bun run scripts/updateComponentsList.ts types",
     "updateComponentsScssList": "bun run scripts/updateComponentsList.ts scss"
   }

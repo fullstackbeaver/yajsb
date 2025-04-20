@@ -2,7 +2,6 @@ import type { ComponentMainData, ComponentRenderData, Components, DescribeCpnArg
 import      { addEditorData, addMessage, addPageData, getComponentDataFromPageData, getPageSettings, isEditorMode } from "@core/pages/page";
 import      { componentFolder, projectRoot, tsExtension }                                                           from "@core/constants";
 import      { getDefaultData, getSchemaKeys }                                                                       from "@adapters/zod/zod";
-import type { Component }                                                                                           from "@site";
 import      DOMPurify                                                                                               from 'isomorphic-dompurify';
 import      { getFolderContent }                                                                                    from "@adapters/files/files";
 
@@ -67,7 +66,7 @@ export function useComponent(componentName:keyof Components, id?:string, context
   const editorMode                        = isEditorMode();
   const { description, schema, template } = components[componentName];  //TODO use description
 
-  let   data = dataFromPage(componentName as Component, id);
+  let   data = dataFromPage(componentName, id);
 
   if ( schema === undefined && template === undefined)
     return sendError(`Component ${componentName} not found or has no schema or template`);
