@@ -128,11 +128,15 @@ dialog {
   border: 0;
   box-shadow: rgba(0, 0, 0, 0.14) 0 0 8px;
   border-radius: .5rem;
-  grid:
+
+  form {
+    grid:
     "title close" 2rem
     "content content" auto
     "bt1 bt2" 2rem
     / 1fr 1fr;
+  }
+
 
   button:first-of-type {
     grid-area: close;

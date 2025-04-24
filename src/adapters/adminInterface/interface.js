@@ -206,16 +206,18 @@ function fillInterface() {
   <button id="showHide" onclick="updatePanelVisible(!isTransparent)">hide</button>
 
   ${listMessages()}
-  <button id="ps">Page Settings</button>
+  <button id="ps" onclick="openModal('pageSettings')">Page Settings</button>
   <button id="add">Add Page</button>
   <button id="deploy">deploy</button>
 </editor>
 <dialog>
-  <h3></h3>
-  <button id="dialogClose" onclick="closeModal()">X</button>
-  <form method="dialog"></form>
-  <button autofocus type="reset" onclick="this.closest('dialog').close('cancel')">Cancel</button>
-  <button id="dialogSave" onclick="saveNewData()">Save</button>
+  <form method="dialog">
+    <h3></h3>
+    <button id="dialogClose" onclick="closeModal()">X</button>
+    <form method="dialog"></form>
+    <button autofocus type="reset" onclick="this.closest('dialog').close('cancel')">Cancel</button>
+    <button id="dialogSave" onclick="saveNewData()">Save</button>
+  </form>
 </dialog>
   `;
 }
