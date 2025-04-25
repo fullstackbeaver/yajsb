@@ -1,15 +1,10 @@
 #!/bin/bash
 
 ##### remove the old library
-if [ -d "./lib" ]; then
-    rm -r "./lib"
+if [ -d "/home/lionel/Documents/dev/personal/site-genrator demo/node_modules/yajsb/lib" ]; then
+    rm -r "/home/lionel/Documents/dev/personal/site-genrator demo/node_modules/yajsb/lib"
 fi
 
-##### type declarations for functions
-bun tsc --emitDeclarationOnly --declaration --outDir ./lib
+bun run build --no-minify
 
-##### clean useless exports for the library
-find ./lib -mindepth 1 -type d -exec rm -r {} \;
-
-##### compile the application
-bun build ./src/index.ts --outdir ./lib --no-minify --target node --external chokidar  --external jsdom  --external sass  --external zod --external isomorphic-dompurify --verbose
+cp -r "./lib" "/home/lionel/Documents/dev/personal/site-genrator demo/node_modules/yajsb/lib"

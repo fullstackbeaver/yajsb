@@ -20,9 +20,6 @@
     "zod": "^3.24.2"
   },
   "scripts": {
-    "build": "rm -r ./lib && bun build ./src/index.ts --outdir ./lib --minify --target bun --external chokidar --external jsdom --external sass --external zod",
-    "start": "bun --watch run src/index.ts",
-    "updateComponentsList": "bun run scripts/updateComponentsList.ts types",
-    "updateComponentsScssList": "bun run scripts/updateComponentsList.ts scss"
+    "build": "bun ./src/scripts/build.js"
   }
 }
