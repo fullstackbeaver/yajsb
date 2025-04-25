@@ -1,17 +1,21 @@
 import * as sass       from 'sass';
+import { projectRoot } from '@core/constants';
 import { writeToFile } from '@adapters/files/files';
+
+
 
 export async function makeCss(prod=false) {
 
   const options = {
     charset  : true,
-    sourceMap: prod
-  } as Record<string, string | boolean>;
+    sourceMap: !prod,
+    loadPaths: [projectRoot + "/css"],
+  } as Record<string, string | string[] | boolean>;
 
   if (prod) options.style = 'compressed';
 
-  const saasResult = sass.compile(process.cwd() + '/site/css/style.scss', options);
+  const saasResult = await sass.compileAsync(projectRoot+'/css/style.scss', options);
 
-  writeToFile("/style.css", saasResult.css.toString());
+  writeToFile(projectRoot + "/public/style.css", saasResult.css.toString());
   console.log("css generated");
 }

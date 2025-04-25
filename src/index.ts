@@ -7,6 +7,7 @@ import { updateFileTree }                                                       
 
 export { useComponent }      from "@core/components/component";
 export { describeComponent } from "@core/components/component";
+export { makeCss }           from "@scripts/makeCss";
 
 export async function startYajsb(){
   runServer();
