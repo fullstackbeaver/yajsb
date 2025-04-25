@@ -1,4 +1,4 @@
-import { z, ZodDefault, ZodObject, ZodOptional, type ZodTypeAny } from "zod";
+import { z, ZodDefault, ZodEnum, ZodObject, ZodOptional, type ZodTypeAny } from "zod";
 
   /**
    * Get default data for a given schema.
@@ -73,17 +73,13 @@ function getZodTypeName(zodType: ZodTypeAny): string {
   }
   const typeName = zodType._def.typeName;
   switch (typeName) {
-    case "ZodString":
-      return "string";
-    case "ZodNumber":
-      return "number";
-    case "ZodBoolean":
-      return "boolean";
-    case "ZodDate":
-      return "Date";
-    // TODO ajouter d'autres types si besoin
-    default:
-      return "unknown";
+    case "ZodString" : return "string";
+    case "ZodNumber" : return "number";
+    case "ZodBoolean": return "boolean";
+    case "ZodDate"   : return "Date";
+    case "ZodEnum"   : return "enum";
+      // TODO: ajouter plus de types si necessaire comme ZodLiteral, ZodArray, ZodObject, etc.
+    default: return "unknown";
   }
 }
 
@@ -94,4 +90,30 @@ function extractFromDescription(description: string | undefined, wantMessage :bo
     : {message : description, wrapper : null};
   if (wantMessage) return message;
   return wrapper;
+}
+
+
+/**
+ * Extrait les valeurs possibles des champs enum dans un schéma ZodObject
+ * @param schema Le schéma Zod
+ * @returns Un objet avec les noms des champs et leurs valeurs possibles (tableaux)
+ */
+export function getEnumValues(schema: ZodObject<any>) {
+  const result: Record<string, string[]> = {};
+  const shape = schema.shape;
+
+  for (const key in shape) {
+    let field = shape[key];
+
+    // Unwrap les ZodOptional et ZodDefault pour atteindre l'enum
+    while (field instanceof ZodOptional || field instanceof ZodDefault) {
+      field = field._def.innerType;
+    }
+
+    if (field instanceof ZodEnum) {
+      result[key] = field._def.values;
+    }
+  }
+
+  return result;
 }

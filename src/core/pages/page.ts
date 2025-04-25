@@ -154,7 +154,7 @@ export async function partialPageUpdate( { component, data, editorData, id, url 
   const newData = merge(originalData, reformatComponentData());
 
   if (!isShared) {
-    newData.pageSettings.modificationDate = new Date().toISOString();//TODO remove any
+    newData.pageSettings.modificationDate = new Date().toISOString();
   }
 
   //save

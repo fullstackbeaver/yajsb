@@ -1,8 +1,9 @@
 import type { ComponentMainData, ComponentRenderData, Components, DescribeCpnArgs }                                 from "./component.types";
 import      { addEditorData, addMessage, addPageData, getComponentDataFromPageData, getPageSettings, isEditorMode } from "@core/pages/page";
 import      { componentFolder, projectRoot, tsExtension }                                                           from "@core/constants";
-import      { getDefaultData, getSchemaKeys }                                                                       from "@adapters/zod/zod";
+import      { getDefaultData, getEnumValues, getSchemaKeys }                                                        from "@adapters/zod/zod";
 import      DOMPurify                                                                                               from 'isomorphic-dompurify';
+import type { ZodObject }                                                                                           from "zod";
 import      { getFolderContent }                                                                                    from "@adapters/files/files";
 
 const components       = {} as Components;
@@ -87,7 +88,11 @@ export function useComponent(componentName:keyof Components, id?:string, context
 
   if ( editorMode ) {
     hasData(data) && addPageData(componentName, id, data);
-    schema !== null && schema !== undefined && registerComponentForEditor(componentName, schema);
+    if (schema !== null && schema !== undefined ) {
+      const simplifiedSchema = getSchemaKeys(schema);
+      addEditorData(componentName, simplifiedSchema);
+      ["enum", "enum?"].some(value => Object.values(simplifiedSchema).includes(value)) && addEditorData("_enum."+componentName, getEnumValues(schema as ZodObject<any>));
+    }
     //TODO ajouter le description
   }
 
@@ -184,15 +189,11 @@ function errorComponent(msg: string) {
 //   return matches;
 // }
 
-function registerComponentForEditor(componentName:string,schema:any){
-  addEditorData(componentName, getSchemaKeys(schema));
-}
-
 export function describeComponent(description:DescribeCpnArgs){
   return JSON.stringify(description);
 }
 
-function hasData(data:object){
+function hasData(data:object | undefined){
   if (!data || data === undefined) return false;
   if (Object.keys(data).length > 0 ) return true;
   return false;

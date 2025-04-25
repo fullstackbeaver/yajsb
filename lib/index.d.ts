@@ -2,6 +2,7 @@ import { createDirectory, getFolderContent, getFolderContentRecursive, readFileA
 import { firstLetterLowerCase, firstLetterUppercase } from "@core/utils";
 export { useComponent } from "@core/components/component";
 export { describeComponent } from "@core/components/component";
+export { makeCss } from "@scripts/makeCss";
 export declare function startYajsb(): Promise<void>;
 export declare const utils: {
     firstLetterLowerCase: typeof firstLetterLowerCase;

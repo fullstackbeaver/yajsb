@@ -14,9 +14,9 @@ export type TemplateFolder = {
   };
 };
 
-export function getFolderContent(path: string | string[]) :Promise<string[]> {
+export async function getFolderContent(path: string | string[]) :Promise<string[]> {
   if (Array.isArray(path)) path = join(...path);
-  return readdir(path);
+  return await readdir(path);
 }
 
 export function writeToFile(path: string, data: string) {

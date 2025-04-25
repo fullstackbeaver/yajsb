@@ -1,16 +1,15 @@
-import { addStaticFolder, handleRoute, sanitizeString } from "ls4bun";
-import type {WorkRequest} from "ls4bun";
-
-import type { BunRequest }  from "bun";
-import { getFileTree } from "@core/siteTree";
-import { renderPage } from "@core/pages/page";
+import      { addStaticFolder, handleRoute, sanitizeString } from "ls4bun";
+import type { BunRequest }                                   from "bun";
+import type { WorkRequest }                                  from "ls4bun";
+import      { getFileTree }                                  from "@core/siteTree";
+import      { renderPage }                                   from "@core/pages/page";
+import { projectRoot } from "@core/constants";
 // import type { WorkRequest } from "ls4bun";
 
 // import { getComponent }     from "@core/components/component";
 // import { getComponentData } from "@core/data/data";
 // import { getFileTree }      from "@core/siteTree";
 // import { renderPage }       from "@core/page";
-
 
 export const routesSite = {
   // "/admin": (req:BunRequest) => handleRoute(req,{
@@ -70,16 +69,15 @@ export const routesSite = {
     }) },
   */
 
-  ...addStaticFolder(process.cwd()+"/site/public", "/"),
-  ...addStaticFolder(__dirname+"/../adminInterface", "/_editor")
+  ...addStaticFolder(projectRoot+"/public", "/"),
+  ...addStaticFolder(__dirname+"/adminInterface", "/_editor")
 };
 
 export async function handleRouteSite (req:BunRequest) {
   return await handleRoute(req,{
     handler: async (request: WorkRequest) => {
       const url = new URL(request.url).pathname;
-      if (!getFileTree(false, false).includes(url)) throw new Error("404|page not found");
-
+      if (!getFileTree(false, false).includes(url)) throw new Error("404|page "+url+" not found");
       return {
         status: 200,
         body: await renderPage(sanitizeString(url), true),
