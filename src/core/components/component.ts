@@ -177,18 +177,6 @@ function errorComponent(msg: string) {
   return "";
 }
 
-// function extractDataEditorValues(html: string): string[] {
-//   const regex = /data-editor="(.*?)"/g;
-//   const matches = [];
-//   let match;
-
-//   while ((match = regex.exec(html)) !== null) {
-//     matches.push(match[1]);
-//   }
-
-//   return matches;
-// }
-
 export function describeComponent(description:DescribeCpnArgs){
   return JSON.stringify(description);
 }
@@ -197,4 +185,8 @@ function hasData(data:object | undefined){
   if (!data || data === undefined) return false;
   if (Object.keys(data).length > 0 ) return true;
   return false;
+}
+
+export function getPageSettingsEditor() {
+  return getSchemaKeys(components.pageSettings.schema);
 }

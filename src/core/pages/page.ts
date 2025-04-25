@@ -3,7 +3,7 @@ import      { dataExtension, projectRoot, sharedIndex, sharedKey } from "../cons
 import      { readJsonFile, writeJson }                            from "@adapters/files/files";
 import      { JSDOM }                                              from 'jsdom';
 import      { extractFromUrl }                                     from './url';
-import      { loadComponentsInformation }                          from '../components/component';
+import      { getPageSettingsEditor, loadComponentsInformation }   from '../components/component';
 import      { merge }                                              from '@core/utils';
 import      { sanitizeInput }                                      from 'ls4bun';
 
@@ -78,7 +78,11 @@ function minifyRenderedContent(str:string) {
 function renderWithEditorInterface(template:Function) {
 
   isEditor   = true;
-  editorData = {};
+  editorData = {
+    pageSettings: getPageSettingsEditor()
+  };
+  usedPageData.pageSettings = pageData.pageSettings;
+
   const html = template();
 
   const scripts = /*html*/`
@@ -158,7 +162,7 @@ export async function partialPageUpdate( { component, data, editorData, id, url 
   }
 
   //save
-  await writeJson(dataToLoad, newData); 
+  await writeJson(dataToLoad, newData);
 
   //new render
   pageData =  merge(pageData, newData); //merge for adding others data (shared or page data)

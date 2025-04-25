@@ -1,7 +1,6 @@
-import type { TemplateFolder} from "@adapters/files/files";
-
-import { index, pageFolder, projectRoot } from "./constants";
-import { getFolderContentRecursive }      from "@adapters/files/files";
+import      { index, pageFolder, projectRoot } from "./constants";
+import type { TemplateFolder }                 from "@adapters/files/files";
+import      { getFolderContentRecursive }      from "@adapters/files/files";
 
 let fileTree: string[] = [];
 
@@ -14,7 +13,8 @@ let fileTree: string[] = [];
 export async function updateFileTree(): Promise<void> {
   fileTree.length = 0;
   fileTree = getGeneratedPaths(await getFolderContentRecursive(projectRoot+pageFolder), true)
-    .map(path => path.slice(pageFolder.length));
+    .map(path => path.slice(pageFolder.length))
+    .map(path => path.endsWith(".index") ? path.split("/").slice(0,-1).join("/")+"/" : path);
 
   if (fileTree[0] === "") fileTree[0] = "/";
 }
