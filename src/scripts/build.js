@@ -10,9 +10,7 @@ const libPath            = "./lib/";
 
 async function build() {
 
-  const minify = process.argv.includes('--no-minify')
-    ? '--no-minify'
-    : '--minify';
+  const minified = process.argv.includes('--minify');
   try {
     // Étape 1: Supprimer l'ancien répertoire 'lib'
     if (fs.existsSync('./lib')) {
@@ -57,7 +55,7 @@ async function build() {
       './src/index.ts',
       '--outdir',
       './lib',
-      minify,
+      minified ? '--minify' : '--no-minify',
       '--target',
       'node',
       '--external', 'chokidar',
@@ -75,9 +73,11 @@ async function build() {
 
     // Étape 5: changer le chemins de l'interface d'adminInterface
     console.log('🔧 Modification de l\'interface d\'administration...');
-    const lib    = await readFileAsString(libPath+libFile);
-    const newLib = lib.split("var __dirname")
-    newLib[1]    = newLib[1].slice(newLib[1].indexOf(";")+1);
+    const lib      = await readFileAsString(libPath+libFile);
+    const landmark = 'server"';
+    const newLib   = lib.split(minified ? "__dirname=" : "var __dirname")
+    const start    = newLib[1].indexOf(landmark)+landmark.length;
+    newLib[1]      = newLib[1].slice(start+(minified ? 1 : 2));
     await writeToFile(libPath+libFile, newLib.join(""));
 
     // Etape 6 : ajoute les fichiers de l'interface d'administration

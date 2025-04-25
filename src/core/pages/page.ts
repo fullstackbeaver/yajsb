@@ -165,18 +165,16 @@ export async function partialPageUpdate( { component, data, editorData, id, url 
   await writeJson(dataToLoad, newData);
 
   //new render
-  pageData =  merge(pageData, newData); //merge for adding others data (shared or page data)
+  pageData        =  merge(pageData, newData); //merge for adding others data (shared or page data)
   messages.length = 0;
   const { template } = await import(templateToLoad) as { template: Function };
 
   const page    = await template();
   const pageDom = new JSDOM(page).window.document;
-  const content = (pageDom.querySelector("body") as HTMLElement).innerHTML;
 
   return {
-    content: minifyRenderedContent(content),
+    content: minifyRenderedContent((pageDom.querySelector("body") as HTMLElement).innerHTML),
     pageData,
     messages
   }
-
 }

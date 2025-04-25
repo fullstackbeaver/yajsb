@@ -5,6 +5,6 @@ if [ -d "/home/lionel/Documents/dev/personal/site-genrator demo/node_modules/yaj
     rm -r "/home/lionel/Documents/dev/personal/site-genrator demo/node_modules/yajsb/lib"
 fi
 
-bun run build --no-minify
+bun run build --minify
 
 cp -r "./lib" "/home/lionel/Documents/dev/personal/site-genrator demo/node_modules/yajsb/lib"
