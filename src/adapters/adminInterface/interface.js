@@ -4,9 +4,9 @@ const dom    = {
 };
 const useHtmlEditor = [];
 
-let isActive      = false;
-let isTransparent = false;
-let usedEditor    = "";
+let isActive   = false;
+let isDeployed = false;
+let usedEditor = "";
 
 dom.body?.setAttribute('data-active', 'false');
 window.onload = () => { createInterface() }
@@ -22,6 +22,7 @@ function findElementsInDom(){
   dom.modalContent = document.querySelector("dialog > form");
   dom.modalTitle   = document.querySelector("dialog > h3");
   dom.panel        = document.querySelector("editor");
+  dom.editorAside  = document.querySelector("editor > aside");
 
   document.querySelectorAll('[data-editor]').forEach(element => {
     element.addEventListener('click', (e) => {
@@ -60,8 +61,12 @@ function updateBodyActive(newState) {
 };
 
 function updatePanelVisible(newState) {
-  isTransparent = newState;
+  isDeployed = newState;
   dom.panel.setAttribute('data-visible', newState);
+  // alert("updatePanelVisible " + newState + " " + dom.editorAside.getAttribute('display'));
+  if (!newState) {
+    dom.editorAside.hidden = true;
+  }
 };
 
 function extractData(editorValue) {
@@ -196,18 +201,19 @@ async function fetcherPost(url, data) {
 
 function fillInterface() {
   dom.body.innerHTML +=/*html*/`
-<editor>
-  <h1>Yajsb Editor</h1>
+<editor ontransitionend="showAside()">
   <label class="toggle-switch">
     <input type="checkbox" id="mainSwitch" onchange="updateBodyActive(this.checked)"${isActive ? " checked" : ""}>
     <span class="slider"></span>
   </label>
-  <button id="showHide" onclick="updatePanelVisible(!isTransparent)">hide</button>
+  <button id="showHide" onclick="updatePanelVisible(!isDeployed)"><</button>
+  <aside>
   ${listMessages()}
   <button id="ps" onclick="openModal('pageSettings')">Page Settings</button>
   <button id="head" onclick="openModal('head')">head</button>
   <button id="add">Add Page</button>
   <button id="deploy">deploy</button>
+  </aside>
 </editor>
 <dialog>
   <h3></h3>
@@ -244,4 +250,8 @@ function setUrl(url, target) {
   dom.buttonUrlPicker.removeAttribute("disabled");
   dom.urlPicker.innerText = "";
   document.getElementById(target).value = url;
+}
+
+function showAside(){
+  if (isDeployed) dom.editorAside.hidden = false;
 }

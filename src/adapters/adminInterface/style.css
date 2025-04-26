@@ -5,72 +5,111 @@ body[data-active="true"] {
 }
 
 editor {
-  background-color: #4CAF50;
-  border-radius: .5rem;
-  display: grid;
-  gap: .5rem;
-  grid:
-    "logo logo logo logo toggle" 4rem
-    "evt evt evt evt evt" auto
-    "showHide ps head add deploy" 4rem
-    / 4rem 4rem 4rem 4rem 4rem;
-  padding: 1rem;
-  position: absolute;
-  right: 1rem;
-  top: 1rem;
-  transition: opacity 0.3s ease;
+  font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 1.1rem;
+  font-weight: 400;
+  line-height: 28px;
+  overflow-x: hidden;
+  
+  background-color: #4CAF50AA;
+  border-radius   : 1rem 0 0 1rem;
+  display         : grid;
+  gap             : .5rem;
+  grid            : 
+    "toggle   aside" 2rem
+    "showHide aside" auto
+    / 4rem auto;
+  padding   : 1rem;
+  position  : fixed;
+  right     : 0rem;
+  top       : 20%;
+  height    : 6rem;
+  transition: width 0.3s ease-out, height 0.3s ease, background-color 0.3s ease;
+  overflow  : hidden;
 
   &[data-visible="true"] {
-    z-index: 100;
-    opacity: 1;
+    width     : 600px;
+    height    : auto;
+    min-height: 6rem;
+    background-color: #0bc673;
+
+    #showHide {
+      transform: rotate(180deg);
+    }
   }
 
   &[data-visible="false"] {
-    opacity: 0.15;
-    z-index: 0;
+    width: 4rem;
+  }
+
+  aside {
+    grid-area: aside;
+    display  : grid;
+    grid     : "messages messages" auto
+      "deploy add" auto
+      "ps head" auto
+      / 1fr 1fr;
+    gap: .5rem;
+
+    &[hidden] {
+      display: none;
+    }
+    button {
+      border          : none;
+      border-radius   : .5rem;
+      background-color: white;
+      color           : #4CAF50;
+    }
+  }
+
+  messages {
+    grid-area: messages;
+    min-width:100%;
+    display:block;
+    padding-left:1.2rem;
   }
 
   .toggle-switch {
-    grid-area: toggle;
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 26px;
-    align-self: center;
+    grid-area   : toggle;
+    position    : relative;
+    display     : inline-block;
+    width       : 50px;
+    height      : 26px;
+    align-self  : center;
     justify-self: center;
 
     input {
       opacity: 0;
-      width: 0;
-      height: 0;
+      width  : 0;
+      height : 0;
     }
 
     .slider {
-      position: absolute;
-      cursor: pointer;
+      position        : absolute;
+      cursor          : pointer;
       background-color: #ccc;
-      border-radius: 26px;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      transition: background-color 0.4s;
-      border: 1px solid white;
+      border-radius   : 26px;
+      top             : 0;
+      left            : 0;
+      right           : 0;
+      bottom          : 0;
+      transition      : background-color 0.4s;
+      border          : 1px solid white;
 
       &::before {
-        content: "";
-        position: absolute;
-        height: 20px;
-        width: 20px;
-        left: 3px;
-        bottom: 3px;
+        content         : "";
+        position        : absolute;
+        height          : 20px;
+        width           : 20px;
+        left            : 3px;
+        bottom          : 3px;
         background-color: white;
-        border-radius: 50%;
-        transition: transform 0.4s;
+        border-radius   : 50%;
+        transition      : transform 0.4s;
       }
     }
 
-    input:checked + .slider {
+    input:checked+.slider {
       background-color: #4CAF50;
 
       &::before {
@@ -81,18 +120,24 @@ editor {
 
   button {
     background-color: transparent;
-    border: 2px solid white;
-    border-radius: 50%;
-    width: 4rem;
-    height: 4rem;
-    color: white;
+    /* display         : inline-block; */
+    font-family:inherit;
+    font-size:1rem;
 
     &:hover {
       cursor: pointer;
     }
 
     &#showHide {
-      grid-area: showHide;
+      grid-area    : showHide;
+      transition   : transform 1s ease;
+      border       : 2px solid white;
+      border-radius: 50%;
+      width        : 2rem;
+      height       : 2rem;
+      color        : white;
+      align-self   : center;
+      justify-self : center;
     }
 
     &#deploy {
@@ -108,48 +153,45 @@ editor {
     }
 
     &#ps {
-      grid-area: ps;
-      justify-self: end;
+      grid-area   : ps;
+      /* justify-self: end; */
     }
   }
 
   h1 {
-    grid-area: logo;
+    grid-area : logo;
     text-align: left;
-    color: white;
-    font-size: 1.5rem;
+    color     : white;
+    font-size : 1.5rem;
   }
 
   messages {
-    grid-area: evt;
+    grid-area: messages;
   }
 }
 
 dialog {
-  bottom: 0;
-  right: 1rem;
-  width: 600px;
-  border: 0;
-  box-shadow: rgba(0, 0, 0, 0.14) 0 0 8px;
+  bottom       : 0;
+  right        : 1rem;
+  width        : 600px;
+  border       : 0;
+  box-shadow   : rgba(0, 0, 0, 0.14) 0 0 8px;
   border-radius: .5rem;
-  grid:
-    "title close" 2rem
-    "content content" auto
-    "bt1 bt2" 2rem
-    / 1fr 1fr;
+  grid         : 
+    "title close" 2rem "content content" auto "bt1 bt2" 2rem / 1fr 1fr;
 
   button:first-of-type {
     grid-area: close;
   }
 
   h3 {
-    grid-area: title;
+    grid-area : title;
     align-self: center;
   }
 
   form {
     grid-area: content;
-    padding: 1rem;
+    padding  : 1rem;
   }
 
   button:nth-of-type(2) {
@@ -161,7 +203,7 @@ dialog {
   }
 
   label {
-    width: 5rem;
+    width  : 5rem;
     display: inline-block;
   }
 
@@ -325,4 +367,4 @@ tools #save {
   user-select                : none;
   vertical-align             : middle;
   width                      : 100%;
-} */
+  } */
