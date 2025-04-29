@@ -1,6 +1,6 @@
 import { createDirectory, getFolderContent, readFileAsString, writeToFile } from '../adapters/files/files';
-import fs                                                  from 'fs';
-import path                                                from 'path';
+import fs                                                                   from 'fs';
+import path                                                                 from 'path';
 
 
 const adminInterface     = "adminInterface/";
@@ -30,7 +30,7 @@ async function build() {
     ]);
 
     if (tscProcess.exitCode !== 0) {
-      console.error('❌ Échec de la génération des déclarations');
+      console.error('❌ Échec de la génération des déclarations', tscProcess.stderr.toString('utf-8'));
       process.exit(1);
     }
 
@@ -67,7 +67,7 @@ async function build() {
     ]);
 
     if (buildProcess.exitCode !== 0) {
-      console.error('❌ Échec de la compilation');
+      console.error('❌ Échec de la compilation', buildProcess.stderr.toString("utf-8"));
       process.exit(1);
     }
 

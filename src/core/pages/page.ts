@@ -1,11 +1,9 @@
-import type { DataEntries, PageData, PartitalPageUpdateArgs }      from './pages.types';
-import      { dataExtension, projectRoot, sharedIndex, sharedKey } from "../constants";
-import      { readJsonFile, writeJson }                            from "@adapters/files/files";
-import      { JSDOM }                                              from 'jsdom';
-import      { extractFromUrl }                                     from './url';
-import      { getPageSettingsEditor, loadComponentsInformation }   from '../components/component';
-import      { merge }                                              from '@core/utils';
-import      { sanitizeInput }                                      from 'ls4bun';
+import type { DataEntries, PageData, PartitalPageUpdateArgs }          from './pages.types';
+import      { formatDataToSave, loadPagesData, loadSharedData, merge } from './pageData';
+import      { getPageSettingsEditor, loadComponentsInformation }       from '../components/component';
+import      { JSDOM }                                                  from 'jsdom';
+import      { extractFromUrl }                                         from './url';
+import      { writeJson }                                              from '@adapters/files/files';
 
 const messages     = [] as string[];
 let   editorData   = {} as any;       //TODO remettre le bon typage
@@ -37,11 +35,12 @@ export async function renderPage(url: string, isEditor: boolean) {
 
   try {
     const { template } = await import(templateToLoad) as { template: Function };
-    pageData           = await loadPagesData(dataToLoad);
-    const sharedData   = await loadSharedData();
-    for (const [key, value] of Object.entries(sharedData)) {
-      pageData[key] = { ...(pageData[key] ?? {}) , ...value } as Record<string,DataEntries> | DataEntries;
-    }
+    // pageData           = await loadPagesData(dataToLoad);
+    // const sharedData   = await loadSharedData();
+    // for (const [key, value] of Object.entries(sharedData)) {
+    //   pageData[key] = { ...(pageData[key] ?? {}) , ...value } as Record<string,DataEntries> | DataEntries;
+    // }
+    pageData = merge(await loadPagesData(dataToLoad), await loadSharedData());
 
     return isEditor
       ? renderWithEditorInterface(template)
@@ -118,14 +117,6 @@ export function addPageData(component:string, id:string | undefined, data:DataEn
   else usedPageData[component] = data;
 }
 
-async function loadSharedData() {
-  return await readJsonFile(projectRoot+"/"+sharedKey+dataExtension) as PageData;
-}
-
-async function loadPagesData(path:string) {
-  return await readJsonFile(path) as PageData;
-}
-
 export function getComponentDataFromPageData(componentName: keyof PageData, id?: string) {
   return id !== undefined
     ? pageData[componentName]?.[id]
@@ -136,39 +127,24 @@ export function getPageSettings(){
   return pageData.pageSettings;
 }
 
-export async function partialPageUpdate( { component, data, editorData, id, url }:PartitalPageUpdateArgs ){
+export async function partialPageUpdate( { component, data, editorData, url }:PartitalPageUpdateArgs ){
 
-  function reformatComponentData() {
-    if (component === editorData)
-      return { [component]: sanitizeInput(data) };
+  const {templateToLoad, dataToLoad}         = await extractFromUrl(url)
+  const { dataToSave, isSharedData, target } = await formatDataToSave(dataToLoad, data, component, editorData );
+  await writeJson(target, dataToSave);
 
-    const [_component, editor, id] = editorData.split(".") as [string, string, string | undefined];
-
-    return id === undefined
-      ? { [component]: { [editor]: sanitizeInput(data) } }
-      : { [component]: { [id]: { [editor]: sanitizeInput(data) } } };
-  }
-
-  const { dataToLoad, templateToLoad } = await extractFromUrl(url);
-  const isShared                       = id && id.startsWith(sharedIndex);
-  const originalData                   = isShared
-    ? await loadSharedData()
-    : await loadPagesData(dataToLoad);
-
-  const newData = merge(originalData, reformatComponentData());
-
-  if (!isShared) {
-    newData.pageSettings.modificationDate = new Date().toISOString();
-  }
-
-  //save
-  await writeJson(dataToLoad, newData);
+  // prepare data for render
+  messages.length = 0;
+  const dataShared = isSharedData
+    ?  dataToSave
+    :  await loadPagesData(target);
+  const dataPage = isSharedData
+    ?  await loadPagesData(dataToLoad)
+    :  dataToSave;
+  pageData = merge(dataPage, dataShared);
 
   //new render
-  pageData        =  merge(pageData, newData); //merge for adding others data (shared or page data)
-  messages.length = 0;
   const { template } = await import(templateToLoad) as { template: Function };
-
   const page    = await template();
   const pageDom = new JSDOM(page).window.document;
 

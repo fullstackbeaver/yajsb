@@ -64,10 +64,10 @@ export function useComponent(componentName:keyof Components, id?:string, context
 
   const { addMmsg, addPageData, components, dataFromPage, render, sendError } = context;
 
-  const editorMode                        = isEditorMode();
-  const { description, schema, template } = components[componentName];  //TODO use description
+  const editorMode           = isEditorMode();
+  const { schema, template } = components[componentName];  //TODO use description
 
-  let   data = dataFromPage(componentName, id);
+  let data = dataFromPage(componentName, id);
 
   if ( schema === undefined && template === undefined)
     return sendError(`Component ${componentName} not found or has no schema or template`);
@@ -146,8 +146,9 @@ function render({data, editorMode, pageSettings, component, id, template}:Compon
   });
 
   if (editorMode) {
+    const dynamicPattern = new RegExp(`data-editor="${component}(.*?)"`, 'g');
     const editorResult = id !== undefined
-      ? result.replace(/data-editor="(.*?)"/g, (_: any, p1:string) => { return `data-editor="${p1}.${id}"`; })
+      ? result.replace(dynamicPattern, (_: any, p1: string) => { return `data-editor="${component}${p1}.${id}"`; })
       : result;
     return editorResult;
   }
