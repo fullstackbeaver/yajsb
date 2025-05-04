@@ -2,8 +2,8 @@ import      { addStaticFolder, handleRoute, sanitizeString } from "ls4bun";
 import type { BunRequest }                                   from "bun";
 import type { WorkRequest }                                  from "ls4bun";
 import      { getFileTree }                                  from "@core/siteTree";
+import      { projectRoot }                                  from "@core/constants";
 import      { renderPage }                                   from "@core/pages/page";
-import { projectRoot } from "@core/constants";
 // import type { WorkRequest } from "ls4bun";
 
 // import { getComponent }     from "@core/components/component";

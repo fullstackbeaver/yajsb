@@ -82,14 +82,14 @@ export function useComponent(componentName:keyof Components, id?:string, context
   }
 
   if (schema !== null && !hasData(data)) {
-    data = getDefaultData(schema);
+    data = getDefaultData(schema as ZodObject<any>);
     addMmsg("default values used for "+componentName+(id !== undefined ? "."+id : ""));
   }
 
   if ( editorMode ) {
     hasData(data) && addPageData(componentName, id, data);
     if (schema !== null && schema !== undefined ) {
-      const simplifiedSchema = getSchemaKeys(schema);
+      const simplifiedSchema = getSchemaKeys(schema as ZodObject<any>);
       addEditorData(componentName, simplifiedSchema);
       ["enum", "enum?"].some(value => Object.values(simplifiedSchema).includes(value)) && addEditorData("_enum."+componentName, getEnumValues(schema as ZodObject<any>));
     }
@@ -178,16 +178,45 @@ function errorComponent(msg: string) {
   return "";
 }
 
+/**
+ * Stringifies a component description object to a JSON string.
+ *
+ * This is a utility function for storing a component description object
+ * in a file or database.
+ *
+ * @param {DescribeCpnArgs} description - The component description object
+ * to stringify.
+ *
+ * @returns {string} The JSON string representation of the object.
+ */
 export function describeComponent(description:DescribeCpnArgs){
   return JSON.stringify(description);
 }
 
+/**
+ * Checks if a given object has any data.
+ *
+ * This function checks if the given object is truthy and if its keys length is greater than 0.
+ *
+ * @param {object | undefined} data - The object to check.
+ *
+ * @returns {boolean} True if the object has data, false otherwise.
+ */
 function hasData(data:object | undefined){
   if (!data || data === undefined) return false;
   if (Object.keys(data).length > 0 ) return true;
   return false;
 }
 
+/**
+ * Returns the schema definition of the page settings component.
+ *
+ * This function returns the schema keys of the page settings component.
+ * The schema keys are the keys of the object that describe the structure
+ * of the page settings component.
+ *
+ * @returns {Record<string, ZodType<any>>} The schema keys of the page settings component.
+ */
 export function getPageSettingsEditor() {
-  return getSchemaKeys(components.pageSettings.schema);
+  return getSchemaKeys(components.pageSettings.schema as ZodObject<any>);
 }

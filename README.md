@@ -54,6 +54,8 @@ This is a typescript project, based on Bun for performances. It use Zod for defi
 - [ ] add site generator
 - [ ] handle sitemap.xml
 - [X] add CSS builder
+- [ ] fix bug when save component rendered with default values and has several sub editor -> merge default data with data from page when it makes render
+- [ ] fix save for optional fields
 - [ ] add tests
 - [ ] handle robot.txt
 - [ ] handle published and draft status
