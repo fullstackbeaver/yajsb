@@ -1,9 +1,0 @@
-{
-  "link": {
-    "shared_link1": {
-      "url":"https://google.com",
-      "text":"Visit Google",
-      "aria-label":"Search engine"
-    }
-  }
-}

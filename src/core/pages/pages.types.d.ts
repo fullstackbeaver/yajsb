@@ -11,6 +11,5 @@ export type PartitalPageUpdateArgs = {
   component  : string,
   data       : Record<string, DataEntry>,
   editorData : string,
-  id        ?: string,
   url        : string
 }

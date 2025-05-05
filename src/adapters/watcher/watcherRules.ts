@@ -1,6 +1,6 @@
 import { EVENT, EXTENSIONS, FOLDERS } from "./watcher.constants";
+import { makeCss }                    from "@scripts/makeCss";
 import { useWatcher }                 from "./watcher";
-import { makeCss } from "@scripts/makeCss";
 
 export function runWatcher(){
   useWatcher(

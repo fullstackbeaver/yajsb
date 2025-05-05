@@ -1,11 +1,9 @@
-import type { DataEntries, PageData, PartitalPageUpdateArgs }      from './pages.types';
-import      { dataExtension, projectRoot, sharedIndex, sharedKey } from "../constants";
-import      { readJsonFile, writeJson }                            from "@adapters/files/files";
-import      { JSDOM }                                              from 'jsdom';
-import      { extractFromUrl }                                     from './url';
-import      { loadComponentsInformation }                          from '../components/component';
-import      { merge }                                              from '@core/utils';
-import      { sanitizeInput }                                      from 'ls4bun';
+import type { DataEntries, PageData, PartitalPageUpdateArgs }          from './pages.types';
+import      { formatDataToSave, loadPagesData, loadSharedData, merge } from './pageData';
+import      { getPageSettingsEditor, loadComponentsInformation }       from '../components/component';
+import      { JSDOM }                                                  from 'jsdom';
+import      { extractFromUrl }                                         from './url';
+import      { writeJson }                                              from '@adapters/files/files';
 
 const messages     = [] as string[];
 let   editorData   = {} as any;       //TODO remettre le bon typage
@@ -37,11 +35,12 @@ export async function renderPage(url: string, isEditor: boolean) {
 
   try {
     const { template } = await import(templateToLoad) as { template: Function };
-    pageData           = await loadPagesData(dataToLoad);
-    const sharedData   = await loadSharedData();
-    for (const [key, value] of Object.entries(sharedData)) {
-      pageData[key] = { ...(pageData[key] ?? {}) , ...value } as Record<string,DataEntries> | DataEntries;
-    }
+    // pageData           = await loadPagesData(dataToLoad);
+    // const sharedData   = await loadSharedData();
+    // for (const [key, value] of Object.entries(sharedData)) {
+    //   pageData[key] = { ...(pageData[key] ?? {}) , ...value } as Record<string,DataEntries> | DataEntries;
+    // }
+    pageData = merge(await loadPagesData(dataToLoad), await loadSharedData());
 
     return isEditor
       ? renderWithEditorInterface(template)
@@ -75,10 +74,25 @@ function minifyRenderedContent(str:string) {
     .trim();
 }
 
+/**
+ * Enhances and renders the template with editor-specific functionality.
+ *
+ * This function sets the editor mode, prepares editor-related data, and injects
+ * necessary scripts and styles into the HTML template for the editor interface.
+ *
+ * @param {Function} template - The template function to render the HTML content.
+ *
+ * @returns {string} The HTML string with injected editor scripts and styles.
+ */
+
 function renderWithEditorInterface(template:Function) {
 
   isEditor   = true;
-  editorData = {};
+  editorData = {
+    pageSettings: getPageSettingsEditor()
+  };
+  usedPageData.pageSettings = pageData.pageSettings;
+
   const html = template();
 
   const scripts = /*html*/`
@@ -96,17 +110,58 @@ function renderWithEditorInterface(template:Function) {
     .replace(/<head>/, `<head>${scripts}`)
 }
 
+/**
+ * Adds a message to the messages array.
+ *
+ * These messages are made available to the client-side script as a JSON
+ * array of strings. The client-side script can then display them in the
+ * editor interface.
+ *
+ * @param {string} message - The message to add to the messages array.
+ */
 export function addMessage(message:string) {
   messages.push(message);
 }
 
+/**
+ * Checks if the current render is in editor mode.
+ *
+ * Editor mode is enabled when the page is being rendered for the admin
+ * interface. In this case, the page is enhanced with editor-specific
+ * functionality, such as TinyMCE script injection and data transformation.
+ *
+ * @returns {boolean} True if the current render is in editor mode.
+ */
 export function isEditorMode() {
   return isEditor;
 }
 
+/**
+ * Adds data to the `editorData` object for a specified component.
+ *
+ * This function updates the `editorData` object by setting the data
+ * associated with the given component. The data can be of any type
+ * as it is stored under the component's name in the `editorData` object.
+ *
+ * @param {string}  component - The name of the component to associate the data with.
+ * @param {unknown} data - The data to store for the specified component.
+ */
 export function addEditorData(component:string, data:unknown){
   editorData[component] = data;
 }
+
+/**
+ * Adds data to the `usedPageData` object for a specified component.
+ *
+ * This function updates the `usedPageData` object by setting the data
+ * associated with the given component and optional identifier. If an
+ * identifier is provided, the data is stored under that specific id.
+ * Otherwise, the data is stored directly under the component's name.
+ *
+ * @param {string}             component - The name of the component to associate the data with.
+ * @param {string | undefined} id        - The unique identifier for the component data, if any.
+ * @param {DataEntries}        data      - The data entries to store for the specified component.
+ */
 
 export function addPageData(component:string, id:string | undefined, data:DataEntries) {
   usedPageData[component] ??= {};
@@ -114,65 +169,77 @@ export function addPageData(component:string, id:string | undefined, data:DataEn
   else usedPageData[component] = data;
 }
 
-async function loadSharedData() {
-  return await readJsonFile(projectRoot+"/"+sharedKey+dataExtension) as PageData;
-}
-
-async function loadPagesData(path:string) {
-  return await readJsonFile(path) as PageData;
-}
-
+/**
+ * Retrieves the data associated with a given component name and optional identifier.
+ *
+ * If an identifier is provided, this function returns the data associated with that
+ * specific id under the given component name. Otherwise, it returns all the data
+ * associated with the given component name.
+ *
+ * @param {keyof PageData}     componentName - The name of the component to retrieve data from.
+ * @param {string | undefined} id            - The unique identifier for the component data, if any.
+ *
+ * @returns {DataEntries | undefined} The retrieved data, or undefined if no data is found.
+ */
 export function getComponentDataFromPageData(componentName: keyof PageData, id?: string) {
   return id !== undefined
     ? pageData[componentName]?.[id]
     : pageData[componentName];
 }
 
+/**
+ * Retrieves the page settings data from the page data object.
+ *
+ * @returns {Record<string, DataEntries> | undefined} The page settings data, or undefined if no page settings data is found.
+ */
 export function getPageSettings(){
   return pageData.pageSettings;
 }
 
-export async function partialPageUpdate( { component, data, editorData, id, url }:PartitalPageUpdateArgs ){
+/**
+ * Partially updates a page with new data and re-renders it.
+ *
+ * This function takes a component name, its associated data, the editor data,
+ * and the URL of the page to update. It first extracts the template to load
+ * and the data to load from the URL. Then, it formats the data to save and its
+ * target location, and writes the data to that location.
+ *
+ * After that, it prepares the data for re-rendering by setting the page data
+ * to the union of the shared data and the page data, and then renders the page
+ * with the new data.
+ *
+ * @param {{ component: string; data: DataEntries; editorData: string; url: string; }} partitalPageUpdateArgs
+ *   - The component name, its associated data, the editor data, and the URL
+ *     of the page to update.
+ *
+ * @returns {Promise<{ content: string; pageData: PageData; messages: string[]; }>}
+ *   - A promise resolving to an object with the rendered content, the page
+ *     data, and any messages that were generated during the update.
+ */
+export async function partialPageUpdate( { component, data, editorData, url }:PartitalPageUpdateArgs ){
 
-  function reformatComponentData() {
-    if (component === editorData)
-      return { [component]: sanitizeInput(data) };
+  const {templateToLoad, dataToLoad}         = await extractFromUrl(url)
+  const { dataToSave, isSharedData, target } = await formatDataToSave(dataToLoad, data, component, editorData );
+  await writeJson(target, dataToSave);
 
-    const [_component, editor, id] = editorData.split(".") as [string, string, string | undefined];
-
-    return id === undefined
-      ? { [component]: { [editor]: sanitizeInput(data) } }
-      : { [component]: { [id]: { [editor]: sanitizeInput(data) } } };
-  }
-
-  const { dataToLoad, templateToLoad } = await extractFromUrl(url);
-  const isShared                       = id && id.startsWith(sharedIndex);
-  const originalData                   = isShared
-    ? await loadSharedData()
-    : await loadPagesData(dataToLoad);
-
-  const newData = merge(originalData, reformatComponentData());
-
-  if (!isShared) {
-    newData.pageSettings.modificationDate = new Date().toISOString();//TODO remove any
-  }
-
-  //save
-  await writeJson(dataToLoad, newData); 
+  // prepare data for render
+  messages.length = 0;
+  const dataShared = isSharedData
+    ?  dataToSave
+    :  await loadPagesData(target);
+  const dataPage = isSharedData
+    ?  await loadPagesData(dataToLoad)
+    :  dataToSave;
+  pageData = merge(dataPage, dataShared);
 
   //new render
-  pageData =  merge(pageData, newData); //merge for adding others data (shared or page data)
-  messages.length = 0;
   const { template } = await import(templateToLoad) as { template: Function };
-
   const page    = await template();
   const pageDom = new JSDOM(page).window.document;
-  const content = (pageDom.querySelector("body") as HTMLElement).innerHTML;
 
   return {
-    content: minifyRenderedContent(content),
+    content: minifyRenderedContent((pageDom.querySelector("body") as HTMLElement).innerHTML),
     pageData,
     messages
   }
-
 }

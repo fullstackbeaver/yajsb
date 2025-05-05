@@ -1,4 +1,4 @@
-import { useComponent } from "@yajsb";
+import { useComponent } from "yajsb";
 
 export function template () {
   return /*html*/`

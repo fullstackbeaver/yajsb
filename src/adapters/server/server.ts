@@ -24,9 +24,6 @@ const serverSettings ={
       });
     },
     fetch: async (request: Request) => {
-      // const req = request as BunRequest<string>;
-      // console.log("request", request.url);
-      // return new Response("ok");//
       return await handleRouteSite(request as BunRequest);
     },
     websocket: {

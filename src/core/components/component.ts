@@ -1,9 +1,9 @@
 import type { ComponentMainData, ComponentRenderData, Components, DescribeCpnArgs }                                 from "./component.types";
 import      { addEditorData, addMessage, addPageData, getComponentDataFromPageData, getPageSettings, isEditorMode } from "@core/pages/page";
 import      { componentFolder, projectRoot, tsExtension }                                                           from "@core/constants";
-import      { getDefaultData, getSchemaKeys }                                                                       from "@adapters/zod/zod";
-import type { Component }                                                                                           from "@site";
+import      { getDefaultData, getEnumValues, getSchemaKeys }                                                        from "@adapters/zod/zod";
 import      DOMPurify                                                                                               from 'isomorphic-dompurify';
+import type { ZodObject }                                                                                           from "zod";
 import      { getFolderContent }                                                                                    from "@adapters/files/files";
 
 const components       = {} as Components;
@@ -64,10 +64,10 @@ export function useComponent(componentName:keyof Components, id?:string, context
 
   const { addMmsg, addPageData, components, dataFromPage, render, sendError } = context;
 
-  const editorMode                        = isEditorMode();
-  const { description, schema, template } = components[componentName];  //TODO use description
+  const editorMode           = isEditorMode();
+  const { schema, template } = components[componentName];  //TODO use description
 
-  let   data = dataFromPage(componentName as Component, id);
+  let data = dataFromPage(componentName, id);
 
   if ( schema === undefined && template === undefined)
     return sendError(`Component ${componentName} not found or has no schema or template`);
@@ -82,13 +82,17 @@ export function useComponent(componentName:keyof Components, id?:string, context
   }
 
   if (schema !== null && !hasData(data)) {
-    data = getDefaultData(schema);
+    data = getDefaultData(schema as ZodObject<any>);
     addMmsg("default values used for "+componentName+(id !== undefined ? "."+id : ""));
   }
 
   if ( editorMode ) {
     hasData(data) && addPageData(componentName, id, data);
-    schema !== null && schema !== undefined && registerComponentForEditor(componentName, schema);
+    if (schema !== null && schema !== undefined ) {
+      const simplifiedSchema = getSchemaKeys(schema as ZodObject<any>);
+      addEditorData(componentName, simplifiedSchema);
+      ["enum", "enum?"].some(value => Object.values(simplifiedSchema).includes(value)) && addEditorData("_enum."+componentName, getEnumValues(schema as ZodObject<any>));
+    }
     //TODO ajouter le description
   }
 
@@ -142,8 +146,9 @@ function render({data, editorMode, pageSettings, component, id, template}:Compon
   });
 
   if (editorMode) {
+    const dynamicPattern = new RegExp(`data-editor="${component}(.*?)"`, 'g');
     const editorResult = id !== undefined
-      ? result.replace(/data-editor="(.*?)"/g, (_: any, p1:string) => { return `data-editor="${p1}.${id}"`; })
+      ? result.replace(dynamicPattern, (_: any, p1: string) => { return `data-editor="${component}${p1}.${id}"`; })
       : result;
     return editorResult;
   }
@@ -173,28 +178,45 @@ function errorComponent(msg: string) {
   return "";
 }
 
-// function extractDataEditorValues(html: string): string[] {
-//   const regex = /data-editor="(.*?)"/g;
-//   const matches = [];
-//   let match;
-
-//   while ((match = regex.exec(html)) !== null) {
-//     matches.push(match[1]);
-//   }
-
-//   return matches;
-// }
-
-function registerComponentForEditor(componentName:string,schema:any){
-  addEditorData(componentName, getSchemaKeys(schema));
-}
-
+/**
+ * Stringifies a component description object to a JSON string.
+ *
+ * This is a utility function for storing a component description object
+ * in a file or database.
+ *
+ * @param {DescribeCpnArgs} description - The component description object
+ * to stringify.
+ *
+ * @returns {string} The JSON string representation of the object.
+ */
 export function describeComponent(description:DescribeCpnArgs){
   return JSON.stringify(description);
 }
 
-function hasData(data:object){
+/**
+ * Checks if a given object has any data.
+ *
+ * This function checks if the given object is truthy and if its keys length is greater than 0.
+ *
+ * @param {object | undefined} data - The object to check.
+ *
+ * @returns {boolean} True if the object has data, false otherwise.
+ */
+function hasData(data:object | undefined){
   if (!data || data === undefined) return false;
   if (Object.keys(data).length > 0 ) return true;
   return false;
+}
+
+/**
+ * Returns the schema definition of the page settings component.
+ *
+ * This function returns the schema keys of the page settings component.
+ * The schema keys are the keys of the object that describe the structure
+ * of the page settings component.
+ *
+ * @returns {Record<string, ZodType<any>>} The schema keys of the page settings component.
+ */
+export function getPageSettingsEditor() {
+  return getSchemaKeys(components.pageSettings.schema as ZodObject<any>);
 }

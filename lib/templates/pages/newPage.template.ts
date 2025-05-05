@@ -1,4 +1,4 @@
-import { useComponent } from "@yajsb";
+import { useComponent } from "yajsb";
 
 export function template () {
   return /*html*/`
@@ -9,9 +9,6 @@ ${useComponent("head")}
 </head>
 
 <body>
-${useComponent("nav", "mainNav")}
-${useComponent("hero")}
-${useComponent("footer")}
 </body>
 </html>`;
 }

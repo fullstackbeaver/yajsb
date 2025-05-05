@@ -43,7 +43,6 @@ export function useWatcher(pathsToWatch: string[], extensions: string[], folders
   for (const event of Object.values(EVENT)) {
     watcher.on(event, (filePath) => {
       const extensionOrFolder = extractExtensionOrFolder(event, filePath);
-      console.log(extensionOrFolder, extensionOrFolder !== null ? automationRules[event][extensionOrFolder] : "");
       extensionOrFolder !== null && automationRules[event][extensionOrFolder]();
     });
   }

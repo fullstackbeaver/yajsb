@@ -12,7 +12,7 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    "noEmit": true,
+    "noEmit": false, //true,
 
     // Best practices
     "strict": true,
@@ -32,9 +32,21 @@
       "@core/*"          : ["./src/core/*"],
       "@coreComponents/*": ["./src/core/components/*"],
       "@pages/*"         : ["./site/pages/*"],
-      "@scripts/*"       : ["./scripts/*"],
+      "@scripts/*"       : ["./src/scripts/*"],
       "@site"            : ["./site/type.d.ts"],
       "@yajsb"           : ["./src/index.ts"]
-    }
-  }
+    },
+
+    // build package
+    "declaration"                     : true,
+    "declarationMap"                  : false,
+    "emitDeclarationOnly"             : true,                         // Génère>
+    "esModuleInterop"                 : true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir"                          : "./lib",
+    "preserveSymlinks"                : true,
+    "rootDir"                         : "./src"
+  },
+  "include": [ "./src" ],
+  "exclude": ["./node_modules", "./lib", "./templates", "./src/scripts"]
 }
