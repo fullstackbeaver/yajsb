@@ -5,6 +5,7 @@ import      { getDefaultData, getEnumValues, getSchemaKeys }                    
 import      DOMPurify                                                                                               from 'isomorphic-dompurify';
 import type { ZodObject }                                                                                           from "zod";
 import      { getFolderContent }                                                                                    from "@adapters/files/files";
+import { merge } from "@core/pages/pageData";
 
 const components       = {} as Components;
 const singleComponents = [] as string[];
@@ -75,16 +76,20 @@ export function useComponent(componentName:keyof Components, id?:string, context
   if (schema === undefined && !hasData(data) && template.length > 0)
     return sendError(`Schema not found for component ${componentName}, and no data found${id !== undefined ? " for "+id : ""} in pageData`);
 
+  data = schema !== null
+    ? merge(getDefaultData(schema as ZodObject<any>), data)
+    : data;
+
   if (schema !== null && hasData(data)) {
     const validation = schema.safeParse(data);
     if (!validation.success)
       return sendError("Error in "+componentName+(id !== undefined ? "."+id : "")+": "+validation.error.message);
   }
 
-  if (schema !== null && !hasData(data)) {
-    data = getDefaultData(schema as ZodObject<any>);
-    addMmsg("default values used for "+componentName+(id !== undefined ? "."+id : ""));
-  }
+  // if (schema !== null && !hasData(data)) {
+  //   data = getDefaultData(schema as ZodObject<any>);
+  //   addMmsg("default values used for "+componentName+(id !== undefined ? "."+id : ""));
+  // }
 
   if ( editorMode ) {
     hasData(data) && addPageData(componentName, id, data);

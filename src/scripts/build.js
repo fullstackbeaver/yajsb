@@ -11,8 +11,6 @@ const libPath            = "./lib";
 
 async function runCommand(cmd, msg) {
   try {
-    console.log(msg);
-    console.log(cmd);
     const bunProcess = Bun.spawn(cmd.split(' '), {
       stdout: 'pipe',
       stderr: 'pipe',
@@ -27,11 +25,11 @@ async function runCommand(cmd, msg) {
       console.error(`stdout: ${stdout}`);
       console.error(`stderr: ${stderr}`);
       process.exit(1);
-    } else {
+    } /*else {
       console.log(`${GREEN}✔ Command succeeded: ${cmd}${NO_COLOR}`);
       if (stdout.trim()) console.log(stdout.trim());
       if (stderr.trim()) console.log(stderr.trim());
-    }
+    }*/
   } catch (error) {
     console.error('🚨 Erreur critique:', error);
     process.exit(1);

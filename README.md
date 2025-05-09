@@ -63,20 +63,21 @@ This is a typescript project, based on Bun for performances. It use Zod for defi
 - [ ] add hsts in head https://hstspreload.org/
 - [ ] test built web site and server with https://developer.mozilla.org/en-US/observatory
 - [ ] include JSON-LD https://laconsole.dev/blog/booster-seo-jsonld
-- [ ] ??? : add dynmamic routes with for exampmle a folder like [lang] to set the lang. In this folder a json file will define which values are possibles.
 - [ ] rework to pure function
 
 ### front end
 - [X] load data
 - [X] show rendered page
-- [ ] add floating card that include page setting, add page, deploy site buttons and publish / unpublish page toogle (WIP)
+- [X] add floating card that include page setting, add page, deploy site buttons and publish / unpublish page toogle (WIP)
 - [X] show popup for selected component
 - [X] add listener on editable component
 - [X] save data
 - [ ] show registered special component for page data
-- [ ] create specific interface for image
 - [X] handle html editor (OK for POC but should be replaced later)
-- [ ] add link target selector
+- [ ] create specific interface for image
+- [ ] wrapper | add link target selector
+- [ ] wrapper | handle JSON
+- [ ] wrapper | add image selector
 - [ ] refresh on server reload
 
 ### common front & back
@@ -85,6 +86,8 @@ This is a typescript project, based on Bun for performances. It use Zod for defi
 ### scripts
 - [X] add name validation in script that register component to avoid redifining built in component
 - [X] add a script that create a component
+- [ ] fix scss script when no scss compoennt
+- [ ] add update of tsconfig in script
 
 
 ## Sonar Cloud evaluation

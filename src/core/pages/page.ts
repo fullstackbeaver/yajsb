@@ -84,7 +84,6 @@ function minifyRenderedContent(str:string) {
  *
  * @returns {string} The HTML string with injected editor scripts and styles.
  */
-
 function renderWithEditorInterface(template:Function) {
 
   isEditor   = true;
