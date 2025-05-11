@@ -5,13 +5,12 @@ import      { getDefaultData, getEnumValues, getSchemaKeys }                    
 import      DOMPurify                                                                                               from 'isomorphic-dompurify';
 import type { ZodObject }                                                                                           from "zod";
 import      { getFolderContent }                                                                                    from "@adapters/files/files";
-import { merge } from "@core/pages/pageData";
+import      { merge }                                                                                               from "@core/pages/pageData";
 
 const components       = {} as Components;
 const singleComponents = [] as string[];
 
 const useComponentCtx = {
-  addMmsg         : addMessage,
   addPageData     : addPageData,
   components,
   dataFromPage    : getComponentDataFromPageData,
@@ -51,7 +50,6 @@ export async function loadComponentsInformation() {
  * @param {string}                 componentName  - The name of the component to render.
  * @param {string}                 [id]           - The unique identifier for the component data.
  * @param {Record<string,Function>}[context]      - The context containing the following functions:
- *    - addMmsg: adds a message to the messages array.
  *    - addPageData: adds the component data to the page data map.
  *    - dataFromPage: returns the component data from the page data map.
  *    - render: renders the template with the given data.
@@ -63,7 +61,7 @@ export async function loadComponentsInformation() {
  */
 export function useComponent(componentName:keyof Components, id?:string, context=useComponentCtx):string{
 
-  const { addMmsg, addPageData, components, dataFromPage, render, sendError } = context;
+  const { addPageData, components, dataFromPage, render, sendError } = context;
 
   const editorMode           = isEditorMode();
   const { schema, template } = components[componentName];  //TODO use description
@@ -77,7 +75,7 @@ export function useComponent(componentName:keyof Components, id?:string, context
     return sendError(`Schema not found for component ${componentName}, and no data found${id !== undefined ? " for "+id : ""} in pageData`);
 
   data = schema !== null
-    ? merge(getDefaultData(schema as ZodObject<any>), data)
+    ? merge(getDefaultData(schema as ZodObject<any>), data ?? {})
     : data;
 
   if (schema !== null && hasData(data)) {
@@ -85,11 +83,6 @@ export function useComponent(componentName:keyof Components, id?:string, context
     if (!validation.success)
       return sendError("Error in "+componentName+(id !== undefined ? "."+id : "")+": "+validation.error.message);
   }
-
-  // if (schema !== null && !hasData(data)) {
-  //   data = getDefaultData(schema as ZodObject<any>);
-  //   addMmsg("default values used for "+componentName+(id !== undefined ? "."+id : ""));
-  // }
 
   if ( editorMode ) {
     hasData(data) && addPageData(componentName, id, data);

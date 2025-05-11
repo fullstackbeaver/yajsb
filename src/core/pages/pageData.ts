@@ -9,10 +9,7 @@ import      { sanitizeInput }                                      from "ls4bun"
  * This function reads the JSON file at `projectRoot/shared.json` and
  * returns the parsed data as a `PageData` object.
  *
- * @returns A promise resolving to the shared data as a `PageData` object.
- *
- * @deprecated This function is deprecated and should not be used. Instead,
- * load the shared data for a specific page using the `loadPagesData` function.
+ * @returns {Promise<PageData>} A promise resolving to the shared data as a `PageData` object.
  */
 export async function loadSharedData() { //TODO cette fonction ne devrait plus exister
   return await readJsonFile(projectRoot+"/"+sharedKey+dataExtension) as PageData;
