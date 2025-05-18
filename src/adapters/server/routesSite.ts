@@ -76,8 +76,9 @@ export const routesSite = {
 export async function handleRouteSite (req:BunRequest) {
   return await handleRoute(req,{
     handler: async (request: WorkRequest) => {
-      const url = new URL(request.url).pathname;
-      if (!getFileTree(false, false).includes(url)) throw new Error("404|page "+url+" not found");
+      const url   = new URL(request.url).pathname;
+      const files = await getFileTree(false, false);
+      if (! files.includes(url)) throw new Error("404|page "+url+" not found");
       return {
         status: 200,
         body: await renderPage(sanitizeString(url), true),

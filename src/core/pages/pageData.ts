@@ -1,5 +1,8 @@
 import type { DataEntries, DataEntry, PageData }                   from "./pages.types";
 import      { dataExtension, projectRoot, sharedIndex, sharedKey } from "@core/constants";
+import type { ZodObject }                                          from "zod";
+import      { getComponentByName }                                 from "@core/components/component";
+import      { getDefaultData }                                     from "@adapters/zod/zod";
 import      { readJsonFile }                                       from "@adapters/files/files";
 import      { sanitizeInput }                                      from "ls4bun";
 
@@ -49,7 +52,7 @@ export async function loadPagesData(path:string) {
  *   A promise resolving to an object containing the target path, the merged
  *   data to be saved, and a boolean indicating if the data is shared.
  */
-export async function formatDataToSave(dataToLoad:string, data:DataEntries, component:string, editorData:string){
+export async function formatDataToSave(dataToLoad:string, data:DataEntries, component:string, editorData:string, getCpn=getComponentByName){
 
   const [_, editor, id] = editorData.split(".") as [string, string | undefined, string | undefined];
   const isSharedData    = editor && editor.startsWith(sharedIndex) ? true : false;
@@ -57,9 +60,20 @@ export async function formatDataToSave(dataToLoad:string, data:DataEntries, comp
     ? projectRoot+"/"+sharedKey+dataExtension
     : dataToLoad;
 
+  console.log("*****", getCpn(component));
+  const schema = getCpn(component).schema;
+  if (schema === null) throw new Error(`Component ${component} has no schema -> can't save data`);
+
+  const dataAreValid = schema.safeParse(data);
+  if (!dataAreValid.success) throw new Error(dataAreValid.error.message);
+
+  const completedData = merge(getDefaultData(schema as ZodObject<any>), data);
+
+  console.log("completedData", completedData);
+
   return {
     target,
-    dataToSave:  merge(await readJsonFile(target), reformatComponentData(component, id, editor, data)),
+    dataToSave:  merge(await readJsonFile(target), reformatComponentData(component, id, editor, completedData)),
     isSharedData
   }
 }

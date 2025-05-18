@@ -1,11 +1,11 @@
-import { dataExtension, index, localhost, pageFolder, projectRoot, templateExtension } from "@core/constants";
-import { getFolderContent }                                                            from "@adapters/files/files";
-import { join }                                                                        from 'path';
-
+import { dataExtension, generatedFileExtension, index, localhost, pageFolder, projectRoot, templateExtension } from "@core/constants";
+import { getFolderContent }                                                                                    from "@adapters/files/files";
+import { join }                                                                                                from 'path';
 
 type ExtractFromUrlResponse = {
-  templateToLoad: string;
-  dataToLoad: string;
+  dataToLoad    : string
+  fileToWrite   : string
+  templateToLoad: string
 }
 
 /**
@@ -25,6 +25,7 @@ type ExtractFromUrlResponse = {
  * @returns {Promise<ExtractFromUrlResponse>} An object with the template to load and the data to load.
  */
 export async function extractFromUrl(url: string): Promise<ExtractFromUrlResponse> {
+
   const cleanUrl    = new URL(localhost + url).pathname;
   const currentPath = [projectRoot, pageFolder];
   const urlAsArray  = cleanUrl
@@ -34,6 +35,7 @@ export async function extractFromUrl(url: string): Promise<ExtractFromUrlRespons
 
   let dataToLoad     = urlAsArray[urlAsArray.length - 1];  // dernier élément ou undefined
   let templateToLoad = "";
+  let fileToWrite    = "";
 
   for (const urlPart of urlAsArray) {
     try {
@@ -53,8 +55,10 @@ export async function extractFromUrl(url: string): Promise<ExtractFromUrlRespons
     if (urlAsArray.length > 0 && dataToLoad === lastEntry) {
       templateToLoad += `${lastEntry}.`;
       dataToLoad      = `${lastEntry}.${index}`;
+      fileToWrite    += lastEntry;
     } else {
       dataToLoad = index;
+      fileToWrite = index+generatedFileExtension;
     }
     templateToLoad += index;
   }
@@ -68,5 +72,8 @@ export async function extractFromUrl(url: string): Promise<ExtractFromUrlRespons
   return {
     templateToLoad: join(baseSrc, templateToLoad + templateExtension),
     dataToLoad    : join(baseSrc, dataToLoad + dataExtension),
+    fileToWrite   : (baseSrc.endsWith(fileToWrite)
+      ? baseSrc+generatedFileExtension
+      : join(baseSrc, fileToWrite)).replace("/site"+pageFolder+"/", "/generated/")
   };
 }

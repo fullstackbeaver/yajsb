@@ -218,3 +218,7 @@ function hasData(data:object | undefined){
 export function getPageSettingsEditor() {
   return getSchemaKeys(components.pageSettings.schema as ZodObject<any>);
 }
+
+export function getComponentByName(name:string){
+  return components[name];
+}

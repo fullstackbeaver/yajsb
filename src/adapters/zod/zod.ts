@@ -8,10 +8,10 @@ import { z, ZodDefault, ZodEnum, ZodObject, ZodOptional, type ZodTypeAny } from 
  * @returns default value defined in the schema
  */
 export function getDefaultData(schema: ZodObject<any>) {
-  const shape = schema._def.shape();
+  const shape      = schema._def.shape();
   const objectKeys = Object.keys(shape).filter((key) => {
-    const field = shape[key];
-    const unwrapped = field.unwrap?.() ?? field; // pour ignorer les optional()
+    const field     = shape[key];
+    const unwrapped = field.unwrap?.() ?? field;  // pour ignorer les optional()
     return unwrapped instanceof z.ZodObject;
   });
 

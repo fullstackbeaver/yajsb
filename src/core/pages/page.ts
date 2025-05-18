@@ -3,7 +3,8 @@ import      { formatDataToSave, loadPagesData, loadSharedData, merge } from './p
 import      { getPageSettingsEditor, loadComponentsInformation }       from '../components/component';
 import      { JSDOM }                                                  from 'jsdom';
 import      { extractFromUrl }                                         from './url';
-import      { writeJson }                                              from '@adapters/files/files';
+import      { getFileTree }                                            from '@core/siteTree';
+import      { writeJson, writeToFile }                                              from '@adapters/files/files';
 
 const messages     = [] as string[];
 let   editorData   = {} as any;       //TODO remettre le bon typage
@@ -31,7 +32,7 @@ export async function renderPage(url: string, isEditor: boolean) {
   messages.length = 0;
   await loadComponentsInformation();
 
-  const { templateToLoad, dataToLoad } = await extractFromUrl(url);
+  const { dataToLoad, templateToLoad } = await extractFromUrl(url);
 
   try {
     const { template } = await import(templateToLoad) as { template: Function };
@@ -233,12 +234,21 @@ export async function partialPageUpdate( { component, data, editorData, url }:Pa
 
   //new render
   const { template } = await import(templateToLoad) as { template: Function };
-  const page    = await template();
-  const pageDom = new JSDOM(page).window.document;
+  const page         = await template();
+  const pageDom      = new JSDOM(page).window.document;
 
   return {
     content: minifyRenderedContent((pageDom.querySelector("body") as HTMLElement).innerHTML),
     pageData,
     messages
+  }
+}
+
+export async function renderAllPages() {
+  const pageList = await getFileTree(false, false);
+  for (const page of pageList) {
+    const rendered        = await renderPage(page, false);
+    const { fileToWrite } = await extractFromUrl(page);
+    writeToFile(fileToWrite, rendered);
   }
 }
