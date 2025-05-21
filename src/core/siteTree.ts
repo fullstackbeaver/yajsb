@@ -2,7 +2,6 @@ import      { index, pageFolder, projectRoot } from "./constants";
 import type { TemplateFolder }                 from "@adapters/files/files";
 import      { getFolderContentRecursive }      from "@adapters/files/files";
 
-
 /**
  * Returns a filtered array of paths based on the given options.
  *
@@ -35,38 +34,41 @@ export async function getFileTree(includeAddLocation: boolean, includeUnpublishe
  *
  * @returns {string[]} An array of generated paths.
  */
-export function getGeneratedPaths( folders: { [key: string]: TemplateFolder }, addLocation = false, currentPath = ''): string[] {
+export function getGeneratedPaths(folders: { [key: string]: TemplateFolder }, addLocation = false, currentPath = ""): string[] {
   const paths: string[] = [];
 
-  for (const folderName in folders) {
-    const folder  = folders[folderName];
-    const newPath = `${currentPath}/${folderName}`.replace(/\/+/g, '/');
-
-    const hasIndexData      = folder.data.includes(index)      || folder.data.some(d => d.endsWith('.index'));
-    const hasIndexTemplate  = folder.templates.includes(index) || folder.templates.some(t => t.endsWith('.index'));
-    const hasChildsTemplate = folder.templates.some(t => t.endsWith('childs'));
+  function processFolder (folder: TemplateFolder, newPath: string) {
+    const hasIndexData = folder.data.includes(index) || folder.data.some(d => d.endsWith(".index"));
+    const hasIndexTemplate = folder.templates.includes(index) || folder.templates.some(t => t.endsWith(".index"));
 
     if (hasIndexData && hasIndexTemplate) {
       paths.push(newPath);
     }
 
-    if (hasChildsTemplate) {
+    if (folder.templates.some(t => t.endsWith("childs"))) {
       if (addLocation) {
         paths.push(`${newPath}/+`);
       }
-
-      for (const dataItem of folder.data) {
-        if (!dataItem.endsWith("."+index) && dataItem !== index) {
+      folder.data.forEach(dataItem => {
+        if (!dataItem.endsWith("." + index) && dataItem !== index) {
           paths.push(`${newPath}/${dataItem}`);
         }
-      }
+      });
     }
 
     if (folder.folders) {
-      const subPaths = getGeneratedPaths(folder.folders, addLocation, newPath);
-      paths.push(...subPaths);
+      for (const subFolderName in folder.folders) {
+        const subFolder = folder.folders[subFolderName];
+        processFolder(subFolder, `${newPath}/${subFolderName}`.replace(/\/+/g, "/"));
+      }
     }
+  };
+
+  for (const folderName in folders) {
+    const folder = folders[folderName];
+    const newPath = `${currentPath}/${folderName}`.replace(/\/+/g, "/");
+    processFolder(folder, newPath);
   }
 
-  return paths.map(path =>  path === pageFolder ? "/" :  path.replace(pageFolder, ''));
+  return paths.map(path => path === pageFolder ? "/" : path.replace(pageFolder, ""));
 }

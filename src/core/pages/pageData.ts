@@ -72,10 +72,10 @@ export async function formatDataToSave(dataToLoad:string, data:DataEntries, comp
   console.log("completedData", completedData);
 
   return {
-    target,
-    dataToSave:  merge(await readJsonFile(target), reformatComponentData(component, id, editor, completedData)),
-    isSharedData
-  }
+    dataToSave: merge(await readJsonFile(target), reformatComponentData(component, id, editor, completedData)),
+    isSharedData,
+    target
+  };
 }
 
 /**

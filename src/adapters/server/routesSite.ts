@@ -21,7 +21,6 @@ export const routesSite = {
   //   }
   // }),
 
-
   // ["/siteTree"]: (req:BunRequest) => handleRoute(req,{
   //   handler: async () => {
   //     return {
@@ -80,12 +79,12 @@ export async function handleRouteSite (req:BunRequest) {
       const files = await getFileTree(false, false);
       if (! files.includes(url)) throw new Error("404|page "+url+" not found");
       return {
-        status: 200,
-        body: await renderPage(sanitizeString(url), true),
-        headers : {
+        body   : await renderPage(sanitizeString(url), true),
+        headers: {
           "Content-Type": "text/html"
-        }
-      }
+        },
+        status: 200,
+      };
     },
   });
 }

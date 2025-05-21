@@ -1,6 +1,6 @@
-import * as sass       from 'sass';
-import { projectRoot } from '@core/constants';
-import { writeToFile } from '@adapters/files/files';
+import * as sass       from "sass";
+import { projectRoot } from "@core/constants";
+import { writeToFile } from "@adapters/files/files";
 
 /**
  * Compile the sass files in the /css folder and write the result to /public/style.css.
@@ -12,13 +12,13 @@ import { writeToFile } from '@adapters/files/files';
 export async function makeCss(prod=false) {
   const options = {
     charset  : true,
-    sourceMap: !prod,
     loadPaths: [projectRoot + "/css"],
+    sourceMap: !prod
   } as Record<string, string | string[] | boolean>;
 
-  if (prod) options.style = 'compressed';
+  if (prod) options.style = "compressed";
 
-  const saasResult = await sass.compileAsync(projectRoot+'/css/style.scss', options);
+  const saasResult = await sass.compileAsync(projectRoot+"/css/style.scss", options);
 
   writeToFile(projectRoot + "/public/style.css", saasResult.css.toString());
   console.log("css generated");

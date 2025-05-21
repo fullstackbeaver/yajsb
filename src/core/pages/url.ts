@@ -1,6 +1,6 @@
 import { dataExtension, generatedFileExtension, index, localhost, pageFolder, projectRoot, templateExtension } from "@core/constants";
 import { getFolderContent }                                                                                    from "@adapters/files/files";
-import { join }                                                                                                from 'path';
+import { join }                                                                                                from "path";
 
 type ExtractFromUrlResponse = {
   dataToLoad    : string
@@ -70,10 +70,10 @@ export async function extractFromUrl(url: string): Promise<ExtractFromUrlRespons
   }
 
   return {
-    templateToLoad: join(baseSrc, templateToLoad + templateExtension),
-    dataToLoad    : join(baseSrc, dataToLoad + dataExtension),
-    fileToWrite   : (baseSrc.endsWith(fileToWrite)
+    dataToLoad : join(baseSrc, dataToLoad + dataExtension),
+    fileToWrite: (baseSrc.endsWith(fileToWrite)
       ? baseSrc+generatedFileExtension
-      : join(baseSrc, fileToWrite)).replace("/site"+pageFolder+"/", "/generated/")
+      : join(baseSrc, fileToWrite)).replace("/site"+pageFolder+"/", "/generated/"),
+    templateToLoad: join(baseSrc, templateToLoad + templateExtension),
   };
 }

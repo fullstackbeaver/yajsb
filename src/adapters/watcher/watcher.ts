@@ -1,9 +1,6 @@
-import { watch } from "chokidar";
-
+import      { EVENT }        from "./watcher.constants";
 import type { WatcherRules } from "./watcher.types";
-
-import { EVENT } from "./watcher.constants";
-
+import      { watch }        from "chokidar";
 
 /**
  * Sets up a file watcher on the specified paths and triggers a server reload
@@ -24,12 +21,12 @@ export function useWatcher(pathsToWatch: string[], extensions: string[], folders
     return null;
   }
 
-  function extractFolder(filePath: string):string | null{
-    for (const folder of folders) {
-      if (filePath.includes(folder) && !filePath.endsWith(folder)) return folder;
-    }
-    return null;
-  }
+  // function extractFolder(filePath: string):string | null{
+  //   for (const folder of folders) {
+  //     if (filePath.includes(folder) && !filePath.endsWith(folder)) return folder;
+  //   }
+  //   return null;
+  // }
 
   function extractExtensionOrFolder(event: EVENT, filePath: string) {
 

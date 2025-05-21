@@ -1,16 +1,19 @@
-import type { DataEntries, PageData, PartitalPageUpdateArgs }          from './pages.types';
-import      { formatDataToSave, loadPagesData, loadSharedData, merge } from './pageData';
-import      { getPageSettingsEditor, loadComponentsInformation }       from '../components/component';
-import      { JSDOM }                                                  from 'jsdom';
-import      { extractFromUrl }                                         from './url';
-import      { getFileTree }                                            from '@core/siteTree';
-import      { writeJson, writeToFile }                                              from '@adapters/files/files';
+import type { DataEntries, PageData, PartitalPageUpdateArgs }                        from "./pages.types";
+import      { formatDataToSave, loadPagesData, loadSharedData, merge }               from "./pageData";
+import      { getComponentByName, getPageSettingsEditor, loadComponentsInformation } from "../components/component";
+import      { writeJson, writeToFile }                                               from "@adapters/files/files";
+import      { JSDOM }                                                                from "jsdom";
+import type { ZodObject }                                                            from "zod";
+import      { extractFromUrl }                                                       from "./url";
+import      { getDefaultData }                                                       from "@adapters/zod/zod";
+import      { getFileTree }                                                          from "@core/siteTree";
+import      { pageSettings }                                                         from "@core/constants";
 
 const messages     = [] as string[];
+const usedPageData = {} as any;       // les données complétées par les schemas //TODO remettre le bon typage
 let   editorData   = {} as any;       //TODO remettre le bon typage
 let   isEditor     = false;
-let   pageData     = {} as any        //TODO remettre le bon typage;
-let   usedPageData = {} as any;       // les données complétées par les schemas //TODO remettre le bon typage
+let   pageData     = {} as any;       //TODO remettre le bon typage;
 
 /**
  * Renders a page based on the provided URL and editor mode.
@@ -36,19 +39,18 @@ export async function renderPage(url: string, isEditor: boolean) {
 
   try {
     const { template } = await import(templateToLoad) as { template: Function };
-    // pageData           = await loadPagesData(dataToLoad);
-    // const sharedData   = await loadSharedData();
-    // for (const [key, value] of Object.entries(sharedData)) {
-    //   pageData[key] = { ...(pageData[key] ?? {}) , ...value } as Record<string,DataEntries> | DataEntries;
-    // }
-    pageData = merge(await loadPagesData(dataToLoad), await loadSharedData());
+    pageData           = merge(await loadPagesData(dataToLoad), await loadSharedData());
+
+    if (pageData.pageSettings === undefined || Object.keys(pageData.pageSettings).length === 0){
+      pageData.pageSettings = getDefaultData(getComponentByName(pageSettings).schema as ZodObject<any>);
+    }
 
     return isEditor
       ? renderWithEditorInterface(template)
       : minifyRenderedContent(template());
   }
   catch (error) {
-    console.log("Error", error)
+    console.log("Error", error);
   }
 }
 
@@ -69,9 +71,9 @@ function minifyRenderedContent(str:string) {
   if (typeof str !== "string") return str;
 
   return str
-    .replace(/\n+/g, ' ')     // Supprimer les retours à la ligne inutiles
-    .replace(/\s{2,}/g, ' ')  // Supprimer les espaces multiples
-    .replace(/>\s+</g, '><')  // Supprimer les espaces autour des balises
+    .replace(/\n+/g, " ")     // Supprimer les retours à la ligne inutiles
+    .replace(/\s{2,}/g, " ")  // Supprimer les espaces multiples
+    .replace(/>\s+</g, "><")  // Supprimer les espaces autour des balises
     .trim();
 }
 
@@ -107,7 +109,7 @@ function renderWithEditorInterface(template:Function) {
   <link href="/_editor/style.css" rel="stylesheet" />`;
 
   return html
-    .replace(/<head>/, `<head>${scripts}`)
+    .replace(/<head>/, `<head>${scripts}`);
 }
 
 /**
@@ -218,12 +220,12 @@ export function getPageSettings(){
  */
 export async function partialPageUpdate( { component, data, editorData, url }:PartitalPageUpdateArgs ){
 
-  const {templateToLoad, dataToLoad}         = await extractFromUrl(url)
+  const { templateToLoad, dataToLoad }         = await extractFromUrl(url);
   const { dataToSave, isSharedData, target } = await formatDataToSave(dataToLoad, data, component, editorData );
   await writeJson(target, dataToSave);
 
   // prepare data for render
-  messages.length = 0;
+  messages.length  = 0;
   const dataShared = isSharedData
     ?  dataToSave
     :  await loadPagesData(target);
@@ -239,9 +241,9 @@ export async function partialPageUpdate( { component, data, editorData, url }:Pa
 
   return {
     content: minifyRenderedContent((pageDom.querySelector("body") as HTMLElement).innerHTML),
-    pageData,
-    messages
-  }
+    messages,
+    pageData
+  };
 }
 
 export async function renderAllPages() {
