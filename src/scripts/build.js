@@ -57,17 +57,24 @@ async function build() {
     );
 
     // Étape 3: Nettoyer les sous-répertoires inutiles
-    console.log('🧹 Nettoyage des exports inutiles...');
-    if (fs.existsSync(libPath)) {
-      const entries = fs.readdirSync(libPath, { withFileTypes: true });
+    // console.log('🧹 Nettoyage des exports inutiles...');
+    // if (fs.existsSync(libPath)) {
+    //   const entries = fs.readdirSync(libPath, { withFileTypes: true });
 
-      for (const entry of entries) {
-        if (entry.isDirectory()) {
-          const dirPath = path.join(libPath, entry.name);
-          fs.rmSync(dirPath, { recursive: true, force: true });
-        }
-      }
-    }
+    //   for (const entry of entries) {
+    //     if (entry.isDirectory()) {
+    //       const dirPath = path.join(libPath, entry.name);
+    //       fs.rmSync(dirPath, { recursive: true, force: true });
+    //     }
+    //   }
+    // }
+
+    //Étape 3: refaire les liens des types
+    await runCommand(
+      'bun tsc-alias -p tsconfig.json --outDir ./lib',
+      "📦 Correction des chemins des types..."
+    );
+
 
     // Étape 4: Compiler l'application avec Bun
     await runCommand(
