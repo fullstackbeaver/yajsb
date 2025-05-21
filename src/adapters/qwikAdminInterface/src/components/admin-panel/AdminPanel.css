@@ -1,0 +1,126 @@
+editor {
+  font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 1.1rem;
+  font-weight: 400;
+  line-height: 28px;
+  overflow-x: hidden;
+  
+  background-color: #4CAF50AA;
+  border-radius   : 1rem 0 0 1rem;
+  display         : grid;
+  gap             : .5rem;
+  grid            : 
+    "toggle   aside" 2rem
+    "showHide aside" auto
+    / 4rem auto;
+  padding   : 1rem;
+  position  : fixed;
+  right     : 0rem;
+  top       : 20%;
+  height    : 6rem;
+  transition: width 0.3s ease-out, height 0.3s ease, background-color 0.3s ease;
+  overflow  : hidden;
+}
+
+editor[data-visible="true"] {
+  width     : 600px;
+  height    : auto;
+  min-height: 6rem;
+  background-color: #0bc673;
+}
+
+editor[data-visible="true"] #showHide {
+  transform: rotate(180deg);
+}
+
+editor[data-visible="false"] {
+  width: 4rem;
+}
+
+editor aside {
+  grid-area: aside;
+  display  : grid;
+  /* Basic placeholder styles, will be refined later */
+  grid     : "messages messages" auto
+    "deploy add" auto
+    "ps head" auto
+    / 1fr 1fr;
+  gap: .5rem;
+}
+
+editor aside[hidden] {
+  display: none;
+}
+
+editor aside button {
+  border          : none;
+  border-radius   : .5rem;
+  background-color: white;
+  color           : #4CAF50;
+}
+
+.toggle-switch {
+  grid-area   : toggle;
+  position    : relative;
+  display     : inline-block;
+  width       : 50px;
+  height      : 26px;
+  align-self  : center;
+  justify-self: center;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width  : 0;
+  height : 0;
+}
+
+.toggle-switch .slider {
+  position        : absolute;
+  cursor          : pointer;
+  background-color: #ccc;
+  border-radius   : 26px;
+  top             : 0;
+  left            : 0;
+  right           : 0;
+  bottom          : 0;
+  transition      : background-color 0.4s;
+  border          : 1px solid white;
+}
+
+.toggle-switch .slider::before {
+  content         : "";
+  position        : absolute;
+  height          : 20px;
+  width           : 20px;
+  left            : 3px;
+  bottom          : 3px;
+  background-color: white;
+  border-radius   : 50%;
+  transition      : transform 0.4s;
+}
+
+.toggle-switch input:checked + .slider {
+  background-color: #4CAF50;
+}
+
+.toggle-switch input:checked + .slider::before {
+  transform: translateX(24px);
+}
+
+editor button#showHide {
+  grid-area    : showHide;
+  transition   : transform 1s ease;
+  border       : 2px solid white;
+  border-radius: 50%;
+  width        : 2rem;
+  height       : 2rem;
+  color        : white;
+  align-self   : center;
+  justify-self : center;
+  background-color: transparent; /* Added to match original */
+}
+
+editor button#showHide:hover {
+  cursor: pointer; /* Added to match original */
+}

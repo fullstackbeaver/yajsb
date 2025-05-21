@@ -4,8 +4,8 @@ import path                                                                 from
 
 const GREEN              = '\x1b[32m';
 const NO_COLOR           = '\x1b[0m';
-const adminInterface     = "adminInterface/";
-const adminInterfacePath = "./src/adapters/";
+// const adminInterface     = "adminInterface/"; // Removed
+// const adminInterfacePath = "./src/adapters/"; // Removed
 const libFile            = "index.js";
 const libPath            = "./lib";
 
@@ -82,24 +82,9 @@ async function build() {
       "🔨 Compilation du projet..."
     );
 
-    // Étape 5: changer le chemins de l'interface d'adminInterface
-    console.log('🔧 Modification de l\'interface d\'administration...');
-    const lib      = await readFileAsString(libPath+"/"+libFile);
-    const landmark = 'server"';
-    const newLib   = lib.split(minified ? "__dirname=" : "var __dirname")
-    const start    = newLib[1].indexOf(landmark)+landmark.length;
-    newLib[1]      = newLib[1].slice(start+(minified ? 1 : 2));
-    await writeToFile(libPath+"/"+libFile, newLib.join(""));
+    // Étape 5 & 6 (related to old adminInterface) removed.
 
-    // Etape 6 : ajoute les fichiers de l'interface d'administration
-    console.log('📦 Ajout des fichiers de l\'interface d\'administration...');
-    const files = await getFolderContent(adminInterfacePath + adminInterface);
-    await createDirectory(libPath+"/" + adminInterface);
-    for (const file of files) {
-      await writeToFile(libPath+"/" + adminInterface + file, await readFileAsString(adminInterfacePath + adminInterface + file));
-    }
-
-    // Etape 7 : ajoute les fichiers de scripts
+    // Etape 7 : ajoute les fichiers de scripts (now step 5)
     await runCommand(
       `cp ./src/scripts/scripts.ts ${libPath}/scripts.ts`,
       "📦 Ajout de scripts.ts..."

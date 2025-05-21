@@ -1,0 +1,46 @@
+.dynamic-form article {
+  margin: 0.5rem 0;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.dynamic-form label {
+  font-weight: bold;
+  text-align: right;
+}
+
+.dynamic-form input[type="text"],
+.dynamic-form input[type="number"],
+.dynamic-form input[type="url"],
+.dynamic-form select,
+.dynamic-form textarea {
+  width: 100%;
+  padding: 0.3rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.dynamic-form input[type="checkbox"] {
+  justify-self: start;
+}
+
+.dynamic-form .url-picker-container {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dynamic-form .url-picker-container input[type="url"] {
+  flex-grow: 1;
+}
+
+.dynamic-form .url-picker-container button {
+  padding: 0.3rem 0.5rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
