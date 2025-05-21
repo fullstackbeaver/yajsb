@@ -1,7 +1,6 @@
 import { createDirectory, getFolderContent, getFolderContentRecursive, readFileAsString, writeToFile } from "@adapters/files/files";
 import { firstLetterLowerCase, firstLetterUppercase } from "@core/utils";
-export { useComponent } from "@core/components/component";
-export { describeComponent } from "@core/components/component";
+export { component, describeComponent, useComponent } from "@core/components/component";
 export { makeCss } from "@scripts/makeCss";
 export { renderAllPages as buildSite } from "@core/pages/page";
 /**

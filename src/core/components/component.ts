@@ -1,9 +1,9 @@
-import type { ComponentMainData, ComponentRenderData, Components, DescribeCpnArgs }                                 from "./component.types";
+import type { ComponentMainData, ComponentRenderData, Components, DescribeCpnArgs, RawComponentSchema }             from "./component.types";
 import      { addEditorData, addMessage, addPageData, getComponentDataFromPageData, getPageSettings, isEditorMode } from "@core/pages/page";
 import      { componentFolder, projectRoot, tsExtension }                                                           from "@core/constants";
-import      { getDefaultData, getEnumValues, getSchemaKeys }                                                        from "@adapters/zod/zod";
-import      DOMPurify                                                                                               from 'isomorphic-dompurify';
-import type { ZodObject }                                                                                           from "zod";
+import      { getDefaultData, getEnumValues, getSchemaAndType, getSchemaKeys }                                      from "@adapters/zod/zod";
+import      DOMPurify                                                                                               from "isomorphic-dompurify";
+import { ZodObject }                                                                                           from "zod";
 import      { getFolderContent }                                                                                    from "@adapters/files/files";
 import      { merge }                                                                                               from "@core/pages/pageData";
 
@@ -11,13 +11,11 @@ const components       = {} as Components;
 const singleComponents = [] as string[];
 
 const useComponentCtx = {
-  addPageData     : addPageData,
+  addPageData : addPageData,
   components,
-  dataFromPage    : getComponentDataFromPageData,
-  render          : render,
-  sendError       : errorComponent
-}
-
+  dataFromPage: getComponentDataFromPageData,
+  render      : render
+};
 
 /**
  * Loads all components from the given paths.
@@ -53,12 +51,69 @@ export async function loadComponentsInformation() {
  *    - addPageData: adds the component data to the page data map.
  *    - dataFromPage: returns the component data from the page data map.
  *    - render: renders the template with the given data.
- *    - sendError: sends an error message to the messages array.
  *
  *    context is defined by default and should be modified only during tests
  *
  * @returns {string} The rendered template as a string.
  */
+export function useComponent(componentName: keyof Components, id?: string, context = useComponentCtx): string {
+  const { addPageData, components, dataFromPage, render } = context;
+
+  const editorMode = isEditorMode();
+  const { schema, template } = components[componentName];
+
+  let data = dataFromPage(componentName, id);
+
+  if (!validateComponentSchemaAndTemplate(schema, template, componentName, id, data)) return "";
+
+  data = prepareComponentData(schema, data);
+
+  if (!validateComponentData(schema, data, componentName, id)) return "";
+
+  editorMode && handleEditorMode(schema, data, componentName, id, addPageData);
+
+  return renderComponent({ componentName, data, editorMode, id, render, template });
+}
+
+function validateComponentSchemaAndTemplate(schema: any, template: Function | undefined, componentName: string, id: string | undefined, data: any, sendError=errorComponent): boolean { //TODO change any by zodObject
+  if (schema === undefined && template === undefined) {
+    sendError(`Component ${componentName} not found or has no schema or template`);
+    return false;
+  }
+  if (schema === undefined && !hasData(data) && template !== undefined && template.length > 0) {
+    sendError(`Schema not found for component ${componentName}, and no data found${id !== undefined ? " for " + id : ""} in pageData`);
+    return false;
+  }
+  return true;
+}
+
+function prepareComponentData(schema: any, data: any): any {
+  return schema !== null ? merge(getDefaultData(schema as ZodObject<any>), data ?? {}) : data;
+}
+
+function validateComponentData(schema: any, data: any, componentName: string, id: string | undefined, sendError=errorComponent): boolean {
+  if (schema !== null && hasData(data)) {
+    const validation = schema.safeParse(data);
+    if (!validation.success) {
+      sendError("Error in " + componentName + (id !== undefined ? "." + id : "") + ": " + validation.error.message);
+      return false;
+    }
+  }
+  return true;
+}
+
+function handleEditorMode(schema: any, data: any, componentName: string, id: string | undefined, addPageData: Function) {
+  if (hasData(data)) {
+    addPageData(componentName, id, data);
+  }
+  if (schema !== null && schema !== undefined) {
+    const simplifiedSchema = getSchemaKeys(schema as ZodObject<any>);
+    addEditorData(componentName, simplifiedSchema);
+    ["enum", "enum?"].some(value => Object.values(simplifiedSchema).includes(value)) && addEditorData("_enum." + componentName, getEnumValues(schema as ZodObject<any>));
+  }
+}
+
+/*
 export function useComponent(componentName:keyof Components, id?:string, context=useComponentCtx):string{
 
   const { addPageData, components, dataFromPage, render, sendError } = context;
@@ -99,8 +154,20 @@ export function useComponent(componentName:keyof Components, id?:string, context
     editorMode,
     pageSettings: getPageSettings(),
     template,
-    component: componentName,
+    component   : componentName,
     id
+  });
+}
+  */
+
+function renderComponent({ data, editorMode, template, componentName, id, render }: any): string {
+  return render({
+    component   : componentName,
+    data,
+    editorMode,
+    id,
+    pageSettings: getPageSettings(),
+    template
   });
 }
 
@@ -117,10 +184,11 @@ export function useComponent(componentName:keyof Components, id?:string, context
  * @returns {Promise<ComponentMainData>} - The component.
  */
 async function createComponent(path: string, componentName:string, SglCompCtx:string[] = singleComponents, extension:string = tsExtension): Promise<ComponentMainData> {
-  const { description, isSingle, schema, template } = await import(`${path}/${componentName}/${componentName}${extension}`);
+  const cpn = await import(`${path}/${componentName}/${componentName}${extension}`);
+  const { description, isSingle, schema, template } = cpn.default;
   isSingle === true && SglCompCtx.push(componentName);
 
-  return { description, schema, template }
+  return { description, schema, template };
 }
 
 /**
@@ -136,15 +204,15 @@ async function createComponent(path: string, componentName:string, SglCompCtx:st
  *
  * @returns {string} The rendered template as a string.
  */
-function render({data, editorMode, pageSettings, component, id, template}:ComponentRenderData) {
+function render({ data, editorMode, pageSettings, component, id, template }:ComponentRenderData) {
 
   const result = template({
-    [component] : data,
+    [component]: data,
     pageSettings
   });
 
   if (editorMode) {
-    const dynamicPattern = new RegExp(`data-editor="${component}(.*?)"`, 'g');
+    const dynamicPattern = new RegExp(`data-editor="${component}(.*?)"`, "g");
     const editorResult = id !== undefined
       ? result.replace(dynamicPattern, (_: any, p1: string) => { return `data-editor="${component}${p1}.${id}"`; })
       : result;
@@ -159,7 +227,6 @@ function render({data, editorMode, pageSettings, component, id, template}:Compon
   }
   return DOMPurify.sanitize(result);
 }
-
 
 /**
  * Logs an error message and returns an empty string.
@@ -221,4 +288,14 @@ export function getPageSettingsEditor() {
 
 export function getComponentByName(name:string){
   return components[name];
+}
+
+export function component(isSingle:boolean, template:Function, fields?:RawComponentSchema | ZodObject<any> | null) {
+
+  const { schema, type } = getSchemaAndType(fields);
+  if (!(fields instanceof ZodObject)) {
+    console.log({ fields, schema, type });
+  }
+
+  return { isSingle, schema, template, type };
 }

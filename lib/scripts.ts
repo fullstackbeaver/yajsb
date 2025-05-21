@@ -1,9 +1,13 @@
-import { constants, makeCss, utils } from "yajsb";
+import { buildSite, constants, makeCss, utils } from "yajsb";
+import { promises as fs }                       from "fs";
+import { join }                                 from "path";
 
 export type ComponentData = "0" | "1" | "2" | "3" | "4"
 
-const GREEN    = '\x1b[32m';
-const NO_COLOR = '\x1b[0m';
+const GREEN           = "\x1b[32m";
+const NO_COLOR        = "\x1b[0m";
+const generatedFolder = "generated";
+const publicFolder    = "site/public";
 
 async function main(action: string | undefined = process.argv[2], type: string | undefined = process.argv[3], name: string | undefined = process.argv[4], multiple: string | undefined = process.argv[5]) {
 
@@ -13,12 +17,17 @@ async function main(action: string | undefined = process.argv[2], type: string |
         ? await addWithQuestion()
         : await add(type as "page" | "component", name, multiple as ComponentData);
       break;
-    case "types":
-      await makeContentFile();
+    case "build":
+      await deleteFolder(join(process.cwd(), generatedFolder));
+      await buildSite();
+      await copyPublicFolder();
       break;
     case "scss":
       await updateScssComponentsList();
-      await makeCss()
+      await makeCss();
+      break;
+    case "types":
+      await makeContentFile();
       break;
     case undefined:
       await findScript();
@@ -74,7 +83,7 @@ export async function add(type:"page"|"component", name:string, multiple:Compone
       : constants.componentFolder)+"/";
   }
 
-  const component = "component"
+  const component = "component";
   const page      = "page";
   const scss      = ".scss";
 
@@ -84,7 +93,7 @@ export async function add(type:"page"|"component", name:string, multiple:Compone
 
   console.log("Add", type, name, multiple);
 
-        name              = utils.firstLetterLowerCase(name);;
+  name              = utils.firstLetterLowerCase(name);;
   const nameFU            = utils.firstLetterUppercase(name);
   const folderDestination = defineFolder(constants.projectRoot)+name+"/";
 
@@ -118,11 +127,11 @@ export async function add(type:"page"|"component", name:string, multiple:Compone
         break;
       case file.endsWith(constants.tsExtension+"tpl"):
         const multipleNb         = parseInt(multiple);
-        const { schema, example} = getSchemaAndExample(multiple);
+        const { schema, example } = getSchemaAndExample(multiple);
 
         utils.writeToFile(target + constants.tsExtension, content
           .replace("§multiple§",        multipleNb < 3 ? "true"  : "false")
-          .replace("§importZod§",       multipleNb > 0 ? 'import { z } from "zod"' : "")
+          .replace("§importZod§",       multipleNb > 0 ? "import { z } from \"zod\"" : "")
           .replace("§schemaExample§",   schema)
           .replace("§componentType§",   multipleNb > 0 ? "export type "+nameFU+" = z.infer<typeof schema>;" : "")
           .replace("§componentArg§",    multipleNb     ? ", "+name : "")
@@ -151,7 +160,7 @@ function getSchemaAndExample(multiple: ComponentData) {
       title:   z.string().default("A title"),
       content: z.string().default("the content"),
     })`,
-    example: '<section class="§name§" data-editor="§name§"><h1>${§name§.title}</h1><p data-editor="content">${§name§.content}</p></section>'
+    example: "<section class=\"§name§\" data-editor=\"§name§\"><h1>${§name§.title}</h1><p data-editor=\"content\">${§name§.content}</p></section>"
   };
   const multipleEditorTemplate = {
     schema: /*js*/`z.object({
@@ -162,16 +171,16 @@ function getSchemaAndExample(multiple: ComponentData) {
       linkEditor: z.object({
         url      : z.string().default("#"),
         text     : z.string().default("link to change"),
-        ariaLabel: z.string().optional()
+        ariaLabel: z.string().default("")
       })
     })`,
-    example: '<section class="§name§">\n  <header data-editor="myFirstEditor">\n    <h1>${§name§.myFirstEditor.title}</h1>\n    <p data-editor="content">${§name§.myFirstEditor.content}</p>\n  </header>\n  <p><a href="${§name§.linkEditor.url}" aria-label="${§name§.linkEditor.ariaLabel}">${§name§.linkEditor.text}</a></p>\n</section>'
+    example: "<section class=\"§name§\">\n  <header data-editor=\"myFirstEditor\">\n    <h1>${§name§.myFirstEditor.title}</h1>\n    <p data-editor=\"content\">${§name§.myFirstEditor.content}</p>\n  </header>\n  <p><a href=\"${§name§.linkEditor.url}\" aria-label=\"${§name§.linkEditor.ariaLabel}\">${§name§.linkEditor.text}</a></p>\n</section>"
   };
   switch (parseInt(multiple)) {
     case 0:
       return {
-        schema: "null",
-        example: '<section class="§name§"></section>'
+        schema : "null",
+        example: "<section class=\"§name§\"></section>"
       };
     case 1:
     case 2:
@@ -190,29 +199,30 @@ async function findScript(): Promise<void> {
   console.log("(1) add a component or a page");
   console.log("(2) refresh types");
   console.log("(3) refresh scss");
+  console.log("(4) generate site");
 
-  const choice      = await readInput(`Select an option: `);
+  const choice      = await readInput("Select an option: ");
   const valueChoice = parseInt(choice);
   if (choice === "" || isNaN(valueChoice) || valueChoice < 1 || valueChoice > 3) return findScript();
-  await main(["add","types","scss"][valueChoice-1]);
+  await main(["add","types","scss, build"][valueChoice-1]);
 }
 
 async function askChoice(prompt: string, defaultChoice: number): Promise<number> {
   console.log(`${GREEN}${prompt}${NO_COLOR}`);
-  console.log("(1) Yes", defaultChoice === 1 ? "(default)" : "");
-  console.log("(2) No", defaultChoice === 2 ? "(default)" : "");
+  console.log("(y) Yes", defaultChoice === 1 ? "(default)" : "");
+  console.log("(n) No", defaultChoice === 2 ? "(default)" : "");
   const choice = await readInput("Select an option");
 
   if (choice === "") {
     return defaultChoice;
-  } else if (choice === "1") {
+  } else if (choice === "y") {
     return 1;
-  } else if (choice === "2") {
+  } else if (choice === "n") {
     return 2;
-  } else {
-    console.log(`Invalid choice, defaulting to ${defaultChoice}`);
-    return defaultChoice;
   }
+  console.log(`Invalid choice, defaulting to ${defaultChoice}`);
+  return defaultChoice;
+
 }
 
 async function askComponentData(prompt: string, defaultChoice: number = 1): Promise<number> {
@@ -223,8 +233,7 @@ async function askComponentData(prompt: string, defaultChoice: number = 1): Prom
   console.log("(3) Multiple per page and only 1 editor",    defaultChoice === 3 ? "(default)" : "");
   console.log("(4) Multiple per page and multiple editors", defaultChoice === 4 ? "(default)" : "");
 
-  const choice = await readInput(`Select an option: `);
-
+  const choice       = await readInput("Select an option: ");
   const validChoices = {
     "0": "No data",
     "1": "1 per page and only 1 editor",
@@ -233,9 +242,8 @@ async function askComponentData(prompt: string, defaultChoice: number = 1): Prom
     "4": "Multiple per page and multiple editors"
   };
 
-  if (choice === "") {
-    return defaultChoice;
-  }
+  if (choice === "") return defaultChoice;
+
   const choiceInt = parseInt(choice);
   if (choiceInt >=0 && choiceInt <= 4) return choiceInt;
 
@@ -246,7 +254,7 @@ async function askComponentData(prompt: string, defaultChoice: number = 1): Prom
 async function readNonEmpty(prompt: string): Promise<string> {
   let input = "";
   while (input.trim() === "") {
-    input = await readInput(`> `);
+    input = await readInput("> ");
     if (input.trim() === "") {
       console.log("Name cannot be empty. Please enter a valid name.");
     }
@@ -262,7 +270,7 @@ export function readInput(prompt: string): Promise<string> {
 
   return new Promise((resolve) => {
     stdin.resume();
-    stdin.once('data', (data) => {
+    stdin.once("data", (data) => {
       resolve(data.toString().trim());
     });
   });
@@ -303,6 +311,35 @@ export async function addWithQuestion() {
   }
   await add(type, name, subOption.toString() as ComponentData);
   process.exit(0);
+}
+
+async function copyPublicFolder(source?: string, destination?: string) {
+  source      ??= join(process.cwd(), publicFolder);
+  destination ??= join(process.cwd(), generatedFolder);
+
+  await fs.mkdir(destination, { recursive: true });
+
+  const entries = await fs.readdir(source, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const srcPath  = join(source, entry.name);
+    const destPath = join(destination, entry.name);
+
+    entry.isDirectory()
+      ? await copyPublicFolder(srcPath, destPath)
+      : await fs.copyFile(srcPath, destPath);
+  }
+}
+
+async function deleteFolder(folderPath: string) {
+  if (! await fs.exists(folderPath)) return;
+
+  try {
+    await fs.rm(folderPath, { recursive: true, force: true });
+    console.log(`Deleted folder: ${folderPath}`);
+  } catch (error) {
+    console.error(`Error deleting folder ${folderPath}:`, error);
+  }
 }
 
 main();

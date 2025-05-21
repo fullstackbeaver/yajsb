@@ -4,11 +4,9 @@ import { firstLetterLowerCase, firstLetterUppercase }                           
 import { runServer }                                                                                                      from "@adapters/server/server";
 import { runWatcher }                                                                                                     from "@adapters/watcher/watcherRules";
 
-export { useComponent }      from "@core/components/component";
-export { describeComponent } from "@core/components/component";
-export { makeCss }           from "@scripts/makeCss";
-
-export { renderAllPages as buildSite } from "@core/pages/page";
+export { component, describeComponent, useComponent } from "@core/components/component";
+export { makeCss }                                    from "@scripts/makeCss";
+export { renderAllPages as buildSite }                from "@core/pages/page";
 
 /**
  * Initializes and starts the Yajsb application server and its associated components.
@@ -33,7 +31,7 @@ export const utils = {
   getFolderContentRecursive,
   readFileAsString,
   writeToFile
-}
+};
 
 export const constants = {
   componentFolder,
@@ -44,4 +42,4 @@ export const constants = {
   templateExtension,
   templateFolder,
   tsExtension
-}
+};

@@ -1,4 +1,4 @@
-import type { ZodSchema } from "zod";
+import type { ZodExtra } from "@adapters/zod/zod";
 
 type EditorPossibility = "html" | "imagePicker" | "urlPicker" | "videoPicker" // TODO : add code for each possibility
 
@@ -24,4 +24,11 @@ export type ComponentRenderData = {
 export type DescribeCpnArgs = {
   message ?: string
   wrapper ?: EditorPossibility
+}
+
+export type RawComponentSchema = {
+  [key: string]: number | string | {
+    value : number | string
+    extra?: ZodExtra | EditorPossibility
+  }
 }
