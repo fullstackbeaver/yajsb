@@ -1,5 +1,8 @@
 import type { DataEntries, DataEntry, PageData }                   from "./pages.types";
 import      { dataExtension, projectRoot, sharedIndex, sharedKey } from "@core/constants";
+import type { ZodObject }                                          from "zod";
+import      { getComponentByName }                                 from "@core/components/component";
+import      { getDefaultData }                                     from "@adapters/zod/zod";
 import      { readJsonFile }                                       from "@adapters/files/files";
 import      { sanitizeInput }                                      from "ls4bun";
 
@@ -9,10 +12,7 @@ import      { sanitizeInput }                                      from "ls4bun"
  * This function reads the JSON file at `projectRoot/shared.json` and
  * returns the parsed data as a `PageData` object.
  *
- * @returns A promise resolving to the shared data as a `PageData` object.
- *
- * @deprecated This function is deprecated and should not be used. Instead,
- * load the shared data for a specific page using the `loadPagesData` function.
+ * @returns {Promise<PageData>} A promise resolving to the shared data as a `PageData` object.
  */
 export async function loadSharedData() { //TODO cette fonction ne devrait plus exister
   return await readJsonFile(projectRoot+"/"+sharedKey+dataExtension) as PageData;
@@ -52,7 +52,7 @@ export async function loadPagesData(path:string) {
  *   A promise resolving to an object containing the target path, the merged
  *   data to be saved, and a boolean indicating if the data is shared.
  */
-export async function formatDataToSave(dataToLoad:string, data:DataEntries, component:string, editorData:string){
+export async function formatDataToSave(dataToLoad:string, data:DataEntries, component:string, editorData:string, getCpn=getComponentByName){
 
   const [_, editor, id] = editorData.split(".") as [string, string | undefined, string | undefined];
   const isSharedData    = editor && editor.startsWith(sharedIndex) ? true : false;
@@ -60,11 +60,22 @@ export async function formatDataToSave(dataToLoad:string, data:DataEntries, comp
     ? projectRoot+"/"+sharedKey+dataExtension
     : dataToLoad;
 
+  console.log("*****", getCpn(component));
+  const schema = getCpn(component).schema;
+  if (schema === null) throw new Error(`Component ${component} has no schema -> can't save data`);
+
+  const dataAreValid = schema.safeParse(data);
+  if (!dataAreValid.success) throw new Error(dataAreValid.error.message);
+
+  const completedData = merge(getDefaultData(schema as ZodObject<any>), data);
+
+  console.log("completedData", completedData);
+
   return {
-    target,
-    dataToSave:  merge(await readJsonFile(target), reformatComponentData(component, id, editor, data)),
-    isSharedData
-  }
+    dataToSave: merge(await readJsonFile(target), reformatComponentData(component, id, editor, completedData)),
+    isSharedData,
+    target
+  };
 }
 
 /**

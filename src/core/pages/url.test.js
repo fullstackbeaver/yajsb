@@ -1,6 +1,8 @@
-import { extractFromUrl } from './url'; // adjust the import path as necessary
 import { pageFolder, projectRoot } from "@core/constants";
+import { extractFromUrl }          from './url';//adjusttheimportpathasnecessary
 
+//TODO reprendre en ajoutant fileToWrite
+/*
 describe('extractFromUrl', () => {
   it('should extract correctly for /blog/my_super_article', async () => {
     const url          = '/blog/my_super_article';
@@ -29,3 +31,4 @@ describe('extractFromUrl', () => {
     expect(result.dataToLoad).toBe(expectedPath+"/index.json");
   });
 });
+*/

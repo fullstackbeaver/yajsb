@@ -3,11 +3,10 @@ import { createDirectory, getFolderContent, getFolderContentRecursive, readFileA
 import { firstLetterLowerCase, firstLetterUppercase }                                                                     from "@core/utils";
 import { runServer }                                                                                                      from "@adapters/server/server";
 import { runWatcher }                                                                                                     from "@adapters/watcher/watcherRules";
-import { updateFileTree }                                                                                                 from "@core/siteTree";
 
-export { useComponent }      from "@core/components/component";
-export { describeComponent } from "@core/components/component";
-export { makeCss }           from "@scripts/makeCss";
+export { component, describeComponent, useComponent } from "@core/components/component";
+export { makeCss }                                    from "@scripts/makeCss";
+export { renderAllPages as buildSite }                from "@core/pages/page";
 
 /**
  * Initializes and starts the Yajsb application server and its associated components.
@@ -19,9 +18,8 @@ export { makeCss }           from "@scripts/makeCss";
  *
  * @returns {Promise<void>} A promise that resolves when all initialization steps are completed.
  */
-export async function startYajsb(){
+export function startYajsb(){
   runServer();
-  await updateFileTree();
   runWatcher();
 }
 
@@ -33,7 +31,7 @@ export const utils = {
   getFolderContentRecursive,
   readFileAsString,
   writeToFile
-}
+};
 
 export const constants = {
   componentFolder,
@@ -44,4 +42,4 @@ export const constants = {
   templateExtension,
   templateFolder,
   tsExtension
-}
+};

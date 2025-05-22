@@ -1,4 +1,5 @@
-import { z, ZodDefault, ZodEnum, ZodObject, ZodOptional, type ZodTypeAny } from "zod";
+import      { ZodDefault, ZodEnum, ZodObject, ZodOptional, z } from "zod";
+import type { ZodTypeAny }                                     from "zod";
 
 /**
  * Get default data for a given schema.
@@ -8,10 +9,15 @@ import { z, ZodDefault, ZodEnum, ZodObject, ZodOptional, type ZodTypeAny } from 
  * @returns default value defined in the schema
  */
 export function getDefaultData(schema: ZodObject<any>) {
-  const shape = schema._def.shape();
+  if (!schema) {
+    const err = new Error("No schema provided");
+    console.error(err.stack);
+    process.exit(1);
+  }
+  const shape      = schema._def.shape();
   const objectKeys = Object.keys(shape).filter((key) => {
-    const field = shape[key];
-    const unwrapped = field.unwrap?.() ?? field; // pour ignorer les optional()
+    const field     = shape[key];
+    const unwrapped = field.unwrap?.() ?? field;  // pour ignorer les optional()
     return unwrapped instanceof z.ZodObject;
   });
 
@@ -59,19 +65,19 @@ function extractSchemaDefinition(schema: ZodObject<any>): Record<string, string>
   const result: Record<string, string> = {};
 
   for (const key in shape) {
-    const field = shape[key];
+    const field      = shape[key];
     const isOptional = field instanceof ZodOptional;
     // Pour accéder au type "nu" on vérifie si c'est optional ou default
     // const baseType = (field instanceof ZodOptional || field instanceof ZodDefault)
     //   ? field._def.innerType
     //   : field;
 
-    const wrapper = extractFromDescription(field._def.description, false);
+    const wrapper  = extractFromDescription(field._def.description, false);
     const typeName = getZodTypeName(field);
 
     let finalType: string;
     if (wrapper) {
-      finalType = isOptional && !wrapper.endsWith('?') ? wrapper + '?' : wrapper;
+      finalType = isOptional && !wrapper.endsWith("?") ? wrapper + "?" : wrapper;
     } else {
       finalType = isOptional ? typeName : typeName.replace(/\?$/, "");
     }
@@ -83,17 +89,6 @@ function extractSchemaDefinition(schema: ZodObject<any>): Record<string, string>
 }
 
 
-/**
- * Returns the type name of a given ZodTypeAny as a string.
- *
- * For simple types, it returns the type name (e.g. "string", "number", etc.).
- * For optional types, it appends a '?' to the end of the type name.
- * For default types, it returns the type name of the inner type.
- *
- * @param {ZodTypeAny} zodType - The ZodTypeAny to get the type name from.
- *
- * @returns {string} The type name as a string.
- */
 function getZodTypeName(zodType: ZodTypeAny): string {
 
   if (zodType instanceof ZodOptional) {
@@ -129,9 +124,9 @@ function getZodTypeName(zodType: ZodTypeAny): string {
  */
 function extractFromDescription(description: string | undefined, wantMessage :boolean) {
   if (!description) return ;
-  const {message, wrapper} = description.startsWith("{")
+  const { message, wrapper } = description.startsWith("{")
     ? JSON.parse(description)
-    : {message : description, wrapper : null};
+    : { message: description, wrapper: null };
   if (wantMessage) return message;
   return wrapper;
 }

@@ -1,9 +1,8 @@
 /* file handler specific for bun */
 
-import { dataExtension, templateExtension } from '@core/constants';
+import { dataExtension, templateExtension } from "@core/constants";
 import { mkdir, readdir }                   from "node:fs/promises";
-import { join }                             from 'path';
-
+import { join }                             from "path";
 
 export type TemplateFolder = {
   data      : string[]

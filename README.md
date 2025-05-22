@@ -3,22 +3,17 @@
 The project involves creating a static website generator using reusable components.
 It's another Jamstack tool, but this one aim to be simple for devloppers and for final user with an web interface to change page data.
 It doesn't use database, only json files.
-This project aims to produce the lightest possible sites with good SEO capabilities.
+This project aims to produce the lightest possible sites with good SEO capabilities and help developers to deliver a static website in the fastest way as possible.
 
 ## Architecture
 
-* **generated**      : folder that contains built website
+* **lib**            : folder that contains built library
 
-* **scripts**        : folder that contains script for automate some things like create quickly a component or register handmade components, etc.
-
-* **site/components**: customs components used for the final site
-* **site/pages**     : site tree with templates for rendering pages
-* **site/public**    : contains all that is not html pages and that need to be exposed (medias, fonts, etc.)
-
+* **src/adapters**   : adapters for the different technologies used, such as files, server, and admin interface. All theses elements are thought to be replaced by others easily if you want to custom this project.
 * **src/core**       : constants, basic functions for data and component management.
 * **src/components** : definitions of reusable components, each with its own data schema and template. These are buil in component like header, image,  etc.
 * **src/data**       : functions for data management, including reading and writing JSON files.
-* **src/adapters**   : adapters for the different technologies used, such as files, server, and admin interface. All theses elements are thought to be replaced by others easily if you want to custom this project.
+* **src/scripts**        : folder that contains script for automate some things like create quickly a component or register handmade components, etc.
 
 * **templates**      : contains template for new page or new component
 
@@ -32,59 +27,21 @@ This is a typescript project, based on Bun for performances. It use Zod for defi
 
 ## Roadmap
 
-### backend
-- [X] handle components
-- [X] handle components inside components
-- [X] handle default values and data schema thru Zod
-- [X] render page for build
-- [X] render page for editor
-- [X] load data
-- [X] introduce shared data
-- [X] add description in component;
-- [X] handle site tree
-- [X] rename Global
-- [ ] add data for editor
-- [ ] Add eslint
-- [X] send component data
-- [ ] valid schema and save partial data from front
-- [ ] add system to publish page
-- [X] sanitize data from editor
-- [ ] register special component for page data (like json-ld)
-- [ ] add documentation (WIP)
-- [ ] add site generator
-- [ ] handle sitemap.xml
-- [X] add CSS builder
-- [ ] fix bug when save component rendered with default values and has several sub editor -> merge default data with data from page when it makes render
-- [ ] fix save for optional fields
-- [ ] add tests
-- [ ] handle robot.txt
-- [ ] handle published and draft status
-- [ ] add socket to handle refresh
-- [ ] add hsts in head https://hstspreload.org/
-- [ ] test built web site and server with https://developer.mozilla.org/en-US/observatory
-- [ ] include JSON-LD https://laconsole.dev/blog/booster-seo-jsonld
-- [ ] ??? : add dynmamic routes with for exampmle a folder like [lang] to set the lang. In this folder a json file will define which values are possibles.
-- [ ] rework to pure function
+### v0
+  The actual codebase : the project is in progress to check if the idea is good and if this tool can be used by a lot of developers.
 
-### front end
-- [X] load data
-- [X] show rendered page
-- [ ] add floating card that include page setting, add page, deploy site buttons and publish / unpublish page toogle (WIP)
-- [X] show popup for selected component
-- [X] add listener on editable component
-- [X] save data
-- [ ] show registered special component for page data
-- [ ] create specific interface for image
-- [X] handle html editor (OK for POC but should be replaced later)
-- [ ] add link target selector
-- [ ] refresh on server reload
+### v1
+  In its first release it will specialy thought for developers, not for agencies. It will provide a local-first approach : developments and updates could only be made in local way.
 
-### common front & back
-- [ ] handle field description (only wrapper currently supported)
+  The advantages of Local-First architecture:
+  Resource optimization: By prioritizing data storage and processing on the user's device, Local-First applications are designed to be more resource-efficient.
+  - Offline availability: Applications remain functional even without an internet connection, reducing the need for constant connectivity and bandwidth usage.
+  - User data control: By storing data locally, users have greater control over their information.
+  - Bandwidth minimization and reduced cloud dependency: By using caching as a performance lever, bandwidth is reduced and cloud dependency is reduced.
 
-### scripts
-- [X] add name validation in script that register component to avoid redifining built in component
-- [X] add a script that create a component
+### v2
+  This version will add the possibility to use the editor interface online. It will be thought for agency an their clients to update content of their static sites. One instance of the admin server will handle all filnal clients and websites in order to reduce ressources consumptions.
+  It will add also some features to respond to basics needs like sending email, book a meeting and other stuff throught an API.
 
 
 ## Sonar Cloud evaluation

@@ -1,5 +1,3 @@
-import type { ZodSchema } from "zod";
-
 type EditorPossibility = "html" | "imagePicker" | "urlPicker" | "videoPicker" // TODO : add code for each possibility
 
 export type ComponentMainData     = {
@@ -24,4 +22,10 @@ export type ComponentRenderData = {
 export type DescribeCpnArgs = {
   message ?: string
   wrapper ?: EditorPossibility
+}
+
+export type ExportedComponent = {
+  isSingle: boolean
+  schema  : ZodSchema | null
+  template: Function  | null
 }

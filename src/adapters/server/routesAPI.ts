@@ -10,25 +10,23 @@ const base = "/api/v1";
 export const routesAPI = {
   [base+"/update-partial"]: {
     [Method.POST]: (req:BunRequest) => handleRoute(req,{
-    handler: async (request: WorkRequest) => {
+      handler: async (request: WorkRequest) => {
 
-      //TODO ajouter vérif des données
-      // const url    = request.query?.get("u");
-      // if (!url) throw new Error("400|url not found");
+        //TODO ajouter vérif des données
+        // const url    = request.query?.get("u");
+        // if (!url) throw new Error("400|url not found");
 
-
-
-      return {
-        body: await partialPageUpdate(await request.body as PartitalPageUpdateArgs),
-        status: 200
-      };
-    }
-  })},
+        return {
+          body  : await partialPageUpdate(await request.body as PartitalPageUpdateArgs),
+          status: 200
+        };
+      }
+    }) },
 
   [base+"/siteTree"]: (req:BunRequest) => handleRoute(req,{
     handler: async () => {
       return {
-        body: await getFileTree(false, true),
+        body  : await getFileTree(false, true),
         status: 200
       };
     }
@@ -70,8 +68,6 @@ export const routesAPI = {
       })
     }) },
   */
-
-
 
   // ...addStaticFolder(__dirname+"/../adminInterface", "/")
 };

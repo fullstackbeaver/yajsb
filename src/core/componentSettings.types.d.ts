@@ -1,11 +1,10 @@
 export type ComponentDefinition = {
   // [key: string]: string;
-  name: string;
+  data    : [];
+  name    : string;
   template: Function;
-  data: [];
 };
 
-
-type Date = {
-  value:number;
-}
+// type Date = {
+//   value:number;
+// }
