@@ -1,9 +1,9 @@
-import type { ComponentMainData, ComponentRenderData, Components, DescribeCpnArgs, RawComponentSchema }             from "./component.types";
+import type { ComponentMainData, ComponentRenderData, Components, DescribeCpnArgs, ExportedComponent }                                 from "./component.types";
 import      { addEditorData, addMessage, addPageData, getComponentDataFromPageData, getPageSettings, isEditorMode } from "@core/pages/page";
 import      { componentFolder, projectRoot, tsExtension }                                                           from "@core/constants";
-import      { getDefaultData, getEnumValues, getSchemaAndType, getSchemaKeys }                                      from "@adapters/zod/zod";
+import      { getDefaultData, getEnumValues, getSchemaKeys }                                                        from "@adapters/zod/zod";
 import      DOMPurify                                                                                               from "isomorphic-dompurify";
-import { ZodObject }                                                                                           from "zod";
+import type { ZodObject }                                                                                           from "zod";
 import      { getFolderContent }                                                                                    from "@adapters/files/files";
 import      { merge }                                                                                               from "@core/pages/pageData";
 
@@ -14,7 +14,8 @@ const useComponentCtx = {
   addPageData : addPageData,
   components,
   dataFromPage: getComponentDataFromPageData,
-  render      : render
+  render      : render,
+  sendError   : errorComponent
 };
 
 /**
@@ -57,38 +58,23 @@ export async function loadComponentsInformation() {
  * @returns {string} The rendered template as a string.
  */
 export function useComponent(componentName: keyof Components, id?: string, context = useComponentCtx): string {
-  const { addPageData, components, dataFromPage, render } = context;
+  const { addPageData, components, dataFromPage, render , sendError } = context;
 
-  const editorMode = isEditorMode();
+  const editorMode           = isEditorMode();
   const { schema, template } = components[componentName];
 
-  let data = dataFromPage(componentName, id);
+  if (template === null)      return "";
 
-  if (!validateComponentSchemaAndTemplate(schema, template, componentName, id, data)) return "";
-
-  data = prepareComponentData(schema, data);
+  const data = merge(
+    schema && schema !== null ? getDefaultData(schema as ZodObject<any>) : {},
+    dataFromPage(componentName, id) ?? {}
+  );
 
   if (!validateComponentData(schema, data, componentName, id)) return "";
 
   editorMode && handleEditorMode(schema, data, componentName, id, addPageData);
 
   return renderComponent({ componentName, data, editorMode, id, render, template });
-}
-
-function validateComponentSchemaAndTemplate(schema: any, template: Function | undefined, componentName: string, id: string | undefined, data: any, sendError=errorComponent): boolean { //TODO change any by zodObject
-  if (schema === undefined && template === undefined) {
-    sendError(`Component ${componentName} not found or has no schema or template`);
-    return false;
-  }
-  if (schema === undefined && !hasData(data) && template !== undefined && template.length > 0) {
-    sendError(`Schema not found for component ${componentName}, and no data found${id !== undefined ? " for " + id : ""} in pageData`);
-    return false;
-  }
-  return true;
-}
-
-function prepareComponentData(schema: any, data: any): any {
-  return schema !== null ? merge(getDefaultData(schema as ZodObject<any>), data ?? {}) : data;
 }
 
 function validateComponentData(schema: any, data: any, componentName: string, id: string | undefined, sendError=errorComponent): boolean {
@@ -103,7 +89,7 @@ function validateComponentData(schema: any, data: any, componentName: string, id
 }
 
 function handleEditorMode(schema: any, data: any, componentName: string, id: string | undefined, addPageData: Function) {
-  if (hasData(data)) {
+  if (hasData(data) && data !== null) {
     addPageData(componentName, id, data);
   }
   if (schema !== null && schema !== undefined) {
@@ -259,18 +245,16 @@ export function describeComponent(description:DescribeCpnArgs){
 }
 
 /**
- * Checks if a given object has any data.
+ * Checks if a given object has any data or is set to null.
  *
  * This function checks if the given object is truthy and if its keys length is greater than 0.
  *
- * @param {object | undefined} data - The object to check.
+ * @param {object | undefined | null} data - The object to check.
  *
  * @returns {boolean} True if the object has data, false otherwise.
  */
-function hasData(data:object | undefined){
-  if (!data || data === undefined) return false;
-  if (Object.keys(data).length > 0 ) return true;
-  return false;
+function hasData(data:object | undefined | null){
+  return data !== null && data !== undefined && Object.keys(data).length > 0;
 }
 
 /**
@@ -290,12 +274,10 @@ export function getComponentByName(name:string){
   return components[name];
 }
 
-export function component(isSingle:boolean, template:Function, fields?:RawComponentSchema | ZodObject<any> | null) {
-
-  const { schema, type } = getSchemaAndType(fields);
-  if (!(fields instanceof ZodObject)) {
-    console.log({ fields, schema, type });
-  }
-
-  return { isSingle, schema, template, type };
+export function component(template: Function | null, schema: ZodObject<any> | null = null, isSingle = true): ExportedComponent {
+  return {
+    isSingle,
+    schema,
+    template
+  };
 }

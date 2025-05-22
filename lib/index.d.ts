@@ -1,8 +1,8 @@
-import { createDirectory, getFolderContent, getFolderContentRecursive, readFileAsString, writeToFile } from "@adapters/files/files";
-import { firstLetterLowerCase, firstLetterUppercase } from "@core/utils";
-export { component, describeComponent, useComponent } from "@core/components/component";
-export { makeCss } from "@scripts/makeCss";
-export { renderAllPages as buildSite } from "@core/pages/page";
+import { createDirectory, getFolderContent, getFolderContentRecursive, readFileAsString, writeToFile } from "./adapters/files/files";
+import { firstLetterLowerCase, firstLetterUppercase } from "./core/utils";
+export { component, describeComponent, useComponent } from "./core/components/component";
+export { makeCss } from "./scripts/makeCss";
+export { renderAllPages as buildSite } from "./core/pages/page";
 /**
  * Initializes and starts the Yajsb application server and its associated components.
  *

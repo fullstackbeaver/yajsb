@@ -1,5 +1,3 @@
-import type { ZodExtra } from "@adapters/zod/zod";
-
 type EditorPossibility = "html" | "imagePicker" | "urlPicker" | "videoPicker" // TODO : add code for each possibility
 
 export type ComponentMainData     = {
@@ -26,9 +24,8 @@ export type DescribeCpnArgs = {
   wrapper ?: EditorPossibility
 }
 
-export type RawComponentSchema = {
-  [key: string]: number | string | {
-    value : number | string
-    extra?: ZodExtra | EditorPossibility
-  }
+export type ExportedComponent = {
+  isSingle: boolean
+  schema  : ZodSchema | null
+  template: Function  | null
 }

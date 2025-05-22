@@ -1,0 +1,13 @@
+export declare const componentFolder = "/components";
+export declare const dataExtension = ".json";
+export declare const generatedFileExtension = ".html";
+export declare const index = "index";
+export declare const localhost = "http://localhost";
+export declare const pageFolder = "/pages";
+export declare const pageSettings = "pageSettings";
+export declare const sharedKey = "shared";
+export declare const tsExtension = ".ts";
+export declare const projectRoot: string;
+export declare const sharedIndex: string;
+export declare const templateFolder: string;
+export declare const templateExtension: string;

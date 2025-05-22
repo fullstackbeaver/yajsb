@@ -1,9 +1,5 @@
-import type { EditorPossibility, RawComponentSchema }          from "@core/components/component.types";
 import      { ZodDefault, ZodEnum, ZodObject, ZodOptional, z } from "zod";
 import type { ZodTypeAny }                                     from "zod";
-import      { describeComponent }                              from "@core/components/component";
-
-export type ZodExtra = "email" | "url"; // TODO: ajouter plus de types si necessaire comme  | "uuid" | "cuid" | "cuid2" | "date" | "time" | "datetime" | "regex" | "json" | "base64" | "base64url";
 
 /**
  * Get default data for a given schema.
@@ -13,6 +9,11 @@ export type ZodExtra = "email" | "url"; // TODO: ajouter plus de types si necess
  * @returns default value defined in the schema
  */
 export function getDefaultData(schema: ZodObject<any>) {
+  if (!schema) {
+    const err = new Error("No schema provided");
+    console.error(err.stack);
+    process.exit(1);
+  }
   const shape      = schema._def.shape();
   const objectKeys = Object.keys(shape).filter((key) => {
     const field     = shape[key];
@@ -164,70 +165,4 @@ export function getEnumValues(schema: ZodObject<any>) {
   }
 
   return result;
-}
-
-export function getSchemaAndType<T extends RawComponentSchema>(componentDescription: T | undefined | null | ZodObject<any>){
-
-  if (componentDescription instanceof ZodObject){
-    return {
-      schema: componentDescription,
-      type  : undefined as unknown as z.infer<typeof componentDescription>
-    };
-  }
-
-  if (!componentDescription) {
-    const empty = z.object({});
-    return {
-      schema: empty,
-      type  : undefined as unknown as z.infer<typeof empty>
-    };
-  }
-
-  const shape: Record<string, ZodTypeAny> = {};
-
-  for (const [key, value] of Object.entries(componentDescription)) {
-    let defaultValue: string;
-    let zod: z.ZodString;
-
-    if (typeof value === "object" && value !== null && "defaultValue" in value) {
-      defaultValue = String(value.defaultValue);
-      zod = z.string();
-
-      // Appliquer les contraintes supplémentaires
-      value.extra && addExtra(zod, value.extra);
-
-      // Les autres valeurs d'"extra" sont ignorées pour Zod
-    } else {
-      defaultValue = String(value);
-      zod          = z.string();
-    }
-
-    shape[key] = zod.default(defaultValue);
-  }
-
-  const schema = z.object(shape);
-  return {
-    schema,
-    type: undefined as unknown as z.infer<typeof schema>,
-  };
-}
-
-function addExtra(zodEl: z.ZodString, extra: string) {
-
-  switch (extra) {
-    case "email":
-      zodEl = zodEl.email();
-      break;
-    case "url":
-    case "urlPicker":
-      zodEl = zodEl
-        .url()
-        .describe(describeComponent({ wrapper: "urlPicker" }));
-      break;
-    case "html":
-      break;
-    default:
-      zodEl = zodEl.describe(describeComponent({ wrapper: extra as EditorPossibility }));
-      break;
-  }
 }

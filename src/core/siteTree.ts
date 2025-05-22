@@ -12,7 +12,7 @@ import      { getFolderContentRecursive }      from "@adapters/files/files";
  * @returns {string[]} The filtered array of paths
  */
 export async function getFileTree(includeAddLocation: boolean, includeUnpublished: boolean, refs?: string[]): Promise<string[]> {
-  refs ??= await getGeneratedPaths(await getFolderContentRecursive(projectRoot+pageFolder), true);
+  refs ??= getGeneratedPaths(await getFolderContentRecursive(projectRoot+pageFolder), true);
 
   return refs.filter((path) => {
     const lastElement = path.split("/").pop();
@@ -38,7 +38,7 @@ export function getGeneratedPaths(folders: { [key: string]: TemplateFolder }, ad
   const paths: string[] = [];
 
   function processFolder (folder: TemplateFolder, newPath: string) {
-    const hasIndexData = folder.data.includes(index) || folder.data.some(d => d.endsWith(".index"));
+    const hasIndexData     = folder.data.includes(index) || folder.data.some(d => d.endsWith(".index"));
     const hasIndexTemplate = folder.templates.includes(index) || folder.templates.some(t => t.endsWith(".index"));
 
     if (hasIndexData && hasIndexTemplate) {
