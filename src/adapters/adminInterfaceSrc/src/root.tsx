@@ -1,13 +1,10 @@
-import { component$ } from "@builder.io/qwik";
-import {
-  QwikCityProvider,
-  RouterOutlet,
-  ServiceWorkerRegister,
-} from "@builder.io/qwik-city";
-import { RouterHead } from "./components/router-head/router-head";
-import { isDev } from "@builder.io/qwik";
-
 import "./global.css";
+import { QwikCityProvider, RouterOutlet, ServiceWorkerRegister } from "@builder.io/qwik-city";
+import { RouterHead }                                            from "./components/router-head/router-head";
+import { component$ }                                            from "@builder.io/qwik";
+import { isDev }                                                 from "@builder.io/qwik";
+
+// TODO ajouter un middleware pour gérer l'authentification https://github.com/fullstackbeaver/personal-me/blob/master/src/root.tsx
 
 export default component$(() => {
   /**

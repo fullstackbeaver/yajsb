@@ -111,9 +111,9 @@ export default [
       "arrow-spacing": [
         "warn"
       ],
-      "sort-imports": [
-        "error"
-      ],
+      // "sort-imports": [
+      //   "error"
+      // ],
       "sort-keys": [
         "warn"
       ],

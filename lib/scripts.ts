@@ -93,7 +93,7 @@ export async function add(type:"page"|"component", name:string, multiple:Compone
 
   console.log("Add", type, name, multiple);
 
-  name              = utils.firstLetterLowerCase(name);;
+        name              = utils.firstLetterLowerCase(name);;
   const nameFU            = utils.firstLetterUppercase(name);
   const folderDestination = defineFolder(constants.projectRoot)+name+"/";
 
