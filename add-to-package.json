@@ -1,0 +1,37 @@
+{
+  "// Root package.json": "Scripts pour orchestrer les deux apps",
+  "scripts": {
+    "dev:frontend": "cd frontend && bun run dev",
+    "dev:backend": "cd backend && bun run dev", 
+    "dev": "concurrently \"bun run dev:backend\" \"bun run dev:frontend\"",
+    "test": "bun run test:frontend && bun run test:backend",
+    "test:frontend": "cd frontend && bun test",
+    "test:backend": "cd backend && bun test",
+    "typecheck": "bun run typecheck:frontend && bun run typecheck:backend",
+    "typecheck:frontend": "cd frontend && bun run typecheck",
+    "typecheck:backend": "cd backend && bun run typecheck",
+    "lint": "bun run lint:frontend && bun run lint:backend",
+    "lint:frontend": "cd frontend && bun run lint",
+    "lint:backend": "cd backend && bun run lint"
+  },
+
+  "// Frontend package.json": "Scripts Qwik standards",
+  "frontend_scripts": {
+    "build": "qwik build",
+    "serve": "qwik serve",
+    "dev": "vite --mode ssr", 
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts*\"",
+    "test": "vitest"
+  },
+    
+  "// Backend package.json": "Scripts Bun pour votre backend",
+  "backend_scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "bun build --compile --minify --sourcemap ./src/index.ts --outfile=backend",
+    "start": "./backend",
+    "typecheck": "tsc --noEmit", 
+    "lint": "eslint \"src/**/*.ts\"",
+    "test": "bun test"
+  }
+}
